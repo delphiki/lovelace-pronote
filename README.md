@@ -1,13 +1,13 @@
 # Lovelace cards for the Pronote integration
 
-A few card to help display informations from the [Pronote integration for Home Assistant](https://github.com/delphiki/hass-pronote)
+A few cards to help display informations from the [Pronote integration for Home Assistant](https://github.com/delphiki/hass-pronote)
 
 ## Installation
 
 ### Using HACS
 
 Add this repository to HACS, then:  
-HACS > Lovelace > **Pronote**
+HACS > Lovelace > **Pronote Cards**
 
 ## Cards
 
