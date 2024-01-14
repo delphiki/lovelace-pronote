@@ -16,11 +16,13 @@ HACS > Lovelace > **Pronote Cards**
 ```yaml
 type: custom:pronote-timetable-card
 entity: sensor.pronote_XXXX_YYYY_timetable_next_day
-display_lunch_break: true 
+display_lunch_break: true
 display_classroom: true
 display_teacher: true
 display_day_hours: true
-darken_ended_lessons: true
+dim_ended_lessons: true
+max_days: null
+current_week_only: false
 ```
 
-This card can be used with all sensors.
+This card can be used with all timetable sensors.
