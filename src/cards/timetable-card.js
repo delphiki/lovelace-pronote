@@ -30,7 +30,7 @@ class PronoteTimetableCard extends LitElement {
         let prefix = html``;
         if (this.config.display_lunch_break && lesson.is_afternoon && !this.lunchBreakRendered) {
             prefix = html`
-            <tr class="lunch-break ${this.config.darken_ended_lessons && startAt < currentDate ? 'lesson-ended' : ''}">
+            <tr class="lunch-break ${this.config.dim_ended_lessons && startAt < currentDate ? 'lesson-ended' : ''}">
                 <td></td>
                 <td><span></span></td>
                 <td colspan="2">
@@ -41,7 +41,7 @@ class PronoteTimetableCard extends LitElement {
         }
 
         let content = html`
-        <tr class="${lesson.canceled ? 'lesson-canceled':''} ${this.config.darken_ended_lessons && endAt < currentDate ? 'lesson-ended' : ''}">
+        <tr class="${lesson.canceled ? 'lesson-canceled':''} ${this.config.dim_ended_lessons && endAt < currentDate ? 'lesson-ended' : ''}">
             <td>
                 ${lesson.start_time}<br />
                 ${lesson.end_time}
@@ -154,8 +154,8 @@ class PronoteTimetableCard extends LitElement {
             display_lunch_break: true,
             display_classroom: true,
             display_teacher: true,
-            darken_ended_lessons: true,
             display_day_hours: true,
+            dim_ended_lessons: true,
             max_days: null,
             current_week_only: false,
         }
