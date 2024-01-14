@@ -111,6 +111,13 @@ class PronoteTimetableCard extends LitElement {
                 let lesson = lessons[index];
                 let currentFormattedDate = this.getFormattedDate(lesson);
 
+                if (index < lesson.length - 1) {
+                    let nextLesson = lesson[index + 1];
+                    if (lesson.canceled && lesson.start_at === nextLesson.start_at && !nextLesson.canceled) {
+                        continue;
+                    }
+                }
+
                 if (this.config.current_week_only) {
                     if (new Date(lesson.start_at).getWeekNumber() > currentWeekNumber) {
                         break;
