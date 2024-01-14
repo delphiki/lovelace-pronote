@@ -4,6 +4,13 @@ const LitElement = Object.getPrototypeOf(
 const html = LitElement.prototype.html;
 const css = LitElement.prototype.css;
 
+Date.prototype.getWeekNumber = function () {
+    var d = new Date(+this);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+    return Math.ceil((((d - new Date(d.getFullYear(), 0, 1)) / 8.64e7) + 1) / 7);
+};
+
 class PronoteTimetableCard extends LitElement {
 
     lunchBreakRendered = false;
@@ -93,18 +100,31 @@ class PronoteTimetableCard extends LitElement {
             this.lunchBreakRendered = false;
 
             let latestLessonDay = this.getFormattedDate(lessons[0]);
+            const currentWeekNumber = new Date().getWeekNumber();
 
             const itemTemplates = [];
             let dayTemplates = [];
+            let daysCount = 1;
             itemTemplates.push(this.getDayHeader(lessons[0], day_start_at, day_end_at));
 
             for (let index = 0; index < lessons.length; index++) {
                 let lesson = lessons[index];
                 let currentFormattedDate = this.getFormattedDate(lesson);
 
+                if (this.config.current_week_only) {
+                    if (new Date(lesson.start_at).getWeekNumber() > currentWeekNumber) {
+                        break;
+                    }
+                }
+
                 if (latestLessonDay !== currentFormattedDate) {
                     itemTemplates.push(html`<table>${dayTemplates}</table>`);
                     dayTemplates = [];
+
+                    daysCount++;
+                    if (this.config.max_days && this.config.max_days < daysCount) {
+                        break;
+                    }
 
                     itemTemplates.push(this.getDayHeader(lesson));
 
@@ -136,6 +156,8 @@ class PronoteTimetableCard extends LitElement {
             display_teacher: true,
             darken_ended_lessons: true,
             display_day_hours: true,
+            max_days: null,
+            current_week_only: false,
         }
 
         this.config = {
