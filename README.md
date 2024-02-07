@@ -12,7 +12,9 @@ HACS > Lovelace > **Pronote Cards**
 ## Cards
 
 ### Timetable
-
+  
+![Timetable card example](/doc/images/timetable-card.png "Timetable card example").  
+  
 ```yaml
 type: custom:pronote-timetable-card
 entity: sensor.pronote_XXXX_YYYY_timetable_next_day
@@ -26,3 +28,17 @@ current_week_only: false
 ```
 
 This card can be used with all timetable sensors.
+
+### Homework
+  
+![Homework card example](/doc/images/homework-card.png "Homework card example").
+  
+```yaml
+type: custom:pronote-homework-card
+entity: sensor.pronote_XXXX_YYYY_homework
+display_done_homework: true
+reduce_done_homework: true
+current_week_only: false
+```
+
+This card can be used with all homework sensors.
