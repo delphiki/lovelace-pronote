@@ -42,3 +42,23 @@ current_week_only: false
 ```
 
 This card can be used with all homework sensors.
+
+### Grades
+  
+![Grades card example](/doc/images/grades-card.png "Grades card example").
+  
+```yaml
+type: custom:pronote-grades-card
+entity: sensor.pronote_XXXX_YYYY_grades
+grade_format: full # 'full' will display grade as "X/Y", 'short' will display "X"
+display_header: true
+display_date: true
+display_comment: true
+display_class_average: true
+compare_with_class_average: true
+display_coefficient: true
+display_class_min: true
+display_class_max: true
+display_new_grade_notice: true
+max_grades: null
+```
