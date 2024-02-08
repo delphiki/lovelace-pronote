@@ -22,6 +22,12 @@ class PronoteTimetableCard extends LitElement {
         };
     }
 
+    getCardHeader() {
+        let child_sensor = this.config.entity.split('_timetable')[0];
+        let child_name = this.hass.states[child_sensor].attributes['nickname'];
+        return html`<div class="pronote-card-header">Emploi du temps de ${child_name}</div>`;
+    }
+
     getTimetableRow(lesson) {
         let currentDate = new Date();
         let startAt = Date.parse(lesson.start_at);
@@ -111,9 +117,9 @@ class PronoteTimetableCard extends LitElement {
                 let lesson = lessons[index];
                 let currentFormattedDate = this.getFormattedDate(lesson);
 
-                if (index < lesson.length - 1) {
-                    let nextLesson = lesson[index + 1];
-                    if (lesson.canceled && lesson.start_at === nextLesson.start_at && !nextLesson.canceled) {
+                if (lesson.canceled && index < lessons.length - 1) {
+                    let nextLesson = lessons[index + 1];
+                    if (lesson.start_at === nextLesson.start_at && !nextLesson.canceled) {
                         continue;
                     }
                 }
@@ -145,6 +151,7 @@ class PronoteTimetableCard extends LitElement {
 
             return html`
                 <ha-card id="${this.config.entity}-card">
+                    ${this.config.display_header ? this.getCardHeader() : ''}
                     ${itemTemplates}
                 </ha-card>`
             ;
@@ -158,6 +165,7 @@ class PronoteTimetableCard extends LitElement {
 
         const defaultConfig = {
             entity: null,
+            display_header: true,
             display_lunch_break: true,
             display_classroom: true,
             display_teacher: true,
@@ -175,6 +183,9 @@ class PronoteTimetableCard extends LitElement {
 
     static get styles() {
         return css`
+        .pronote-card-header {
+            text-align:center;
+        }
         div {
             padding: 12px;
             font-weight:bold;

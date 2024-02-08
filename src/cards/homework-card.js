@@ -24,6 +24,12 @@ class PronoteHomeworkCard extends LitElement {
         };
     }
 
+    getCardHeader() {
+        let child_sensor = this.config.entity.split('_homework')[0];
+        let child_name = this.hass.states[child_sensor].attributes['nickname'];
+        return html`<div class="pronote-card-header">Devoirs de ${child_name}</div>`;
+    }
+
     getFormattedDate(date) {
         return (new Date(date))
             .toLocaleDateString('fr-FR', {weekday: 'long', day: '2-digit', month: '2-digit'})
@@ -123,6 +129,7 @@ class PronoteHomeworkCard extends LitElement {
 
             return html`
                 <ha-card id="${this.config.entity}-card">
+                    ${this.config.display_header ? this.getCardHeader() : ''}
                     ${itemTemplates}
                 </ha-card>`
             ;
@@ -136,7 +143,8 @@ class PronoteHomeworkCard extends LitElement {
 
         const defaultConfig = {
             entity: null,
-            current_week_only: false,
+            display_header: true,
+            current_week_only: true,
             reduce_done_homework: true,
             display_done_homework: true,
         }
@@ -149,6 +157,9 @@ class PronoteHomeworkCard extends LitElement {
 
     static get styles() {
         return css`
+        .pronote-card-header {
+            text-align:center;
+        }
         div {
             padding: 12px;
             font-weight:bold;
