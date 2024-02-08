@@ -18,6 +18,7 @@ HACS > Lovelace > **Pronote Cards**
 ```yaml
 type: custom:pronote-timetable-card
 entity: sensor.pronote_XXXX_YYYY_timetable_next_day
+display_header: true
 display_lunch_break: true
 display_classroom: true
 display_teacher: true
@@ -36,6 +37,7 @@ This card can be used with all timetable sensors.
 ```yaml
 type: custom:pronote-homework-card
 entity: sensor.pronote_XXXX_YYYY_homework
+display_header: true
 display_done_homework: true
 reduce_done_homework: true
 current_week_only: false
