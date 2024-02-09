@@ -31,7 +31,11 @@ class PronoteGradesCard extends LitElement {
 
         let grade_classes = [];
 
-        if (this.config.compare_with_class_average && gradeData.class_average) {
+        if (this.config.compare_with_ratio !== null) {
+            let comparison_ratio = parseFloat(this.config.compare_with_ratio);
+            let grade_ratio = grade / parseFloat(gradeData.out_of.replace(',', '.'));
+            grade_classes.push(grade_ratio >= comparison_ratio ? 'above-ratio' : 'below-ratio');
+        } else if (this.config.compare_with_class_average && gradeData.class_average) {
             let class_average = parseFloat(gradeData.class_average.replace(',', '.'));
             grade_classes.push(grade > class_average ? 'above-average' : 'below-average');
         }
@@ -120,6 +124,7 @@ class PronoteGradesCard extends LitElement {
             display_comment: true,
             display_class_average: true,
             compare_with_class_average: true,
+            compare_with_ratio: null,
             display_coefficient: true,
             display_class_min: true,
             display_class_max: true,
@@ -173,10 +178,10 @@ class PronoteGradesCard extends LitElement {
             border-radius:4px;
             background-color: grey;
         }
-        .above-average .grade-color > span {
+        .above-average .grade-color > span, .above-ratio .grade-color > span {
             background-color: green;
         }
-        .below-average .grade-color > span {
+        .below-average .grade-color > span, .below-ratio .grade-color > span {
             background-color: orange;
         }
         .grade-description {

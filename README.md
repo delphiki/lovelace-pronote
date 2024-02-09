@@ -58,6 +58,7 @@ display_date: true
 display_comment: true
 display_class_average: true
 compare_with_class_average: true
+compare_with_ratio: null # use a float number, e.g. '0.6' to compare with the grade / out_of ratio
 display_coefficient: true
 display_class_min: true
 display_class_max: true
