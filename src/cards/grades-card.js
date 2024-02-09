@@ -48,7 +48,7 @@ class PronoteGradesCard extends LitElement {
 
         if (this.config.display_new_grade_notice) {
             let grade_date = new Date(gradeData.date);
-            let today = new Date('2024-02-06');
+            let today = new Date();
             if (
                 grade_date.getFullYear() === today.getFullYear()
                 && grade_date.getMonth() === today.getMonth()
