@@ -65,3 +65,19 @@ display_class_max: true
 display_new_grade_notice: true
 max_grades: null
 ```
+
+### Averages
+  
+![Averages card example](/doc/images/averages-card.png "Averages card example").
+  
+```yaml
+type: custom:pronote-averages-card
+entity: sensor.pronote_XXXX_YYYY_averages
+average_format: full # 'full' will display grade as "X/Y", 'short' will display "X"
+display_header: true
+compare_with_class_average: true
+compare_with_ratio: null # use a float number, e.g. '0.6' to compare with the grade / out_of ratio
+display_class_average: true
+display_class_min: true
+display_class_max: true
+```
