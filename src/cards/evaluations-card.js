@@ -175,7 +175,6 @@ class PronoteEvaluationsCard extends LitElement {
             padding: 5px 10px 5px 10px;
             text-align: left;
         }
-		
         td.evaluation-color {
             width: 4px;
             padding-top: 11px;
@@ -183,7 +182,7 @@ class PronoteEvaluationsCard extends LitElement {
         td.evaluation-color > span {
             display:inline-block;
             width: 4px;
-            height: 1rem;
+            height: 2rem;
             border-radius:4px;
             background-color: grey;
         }
@@ -193,8 +192,6 @@ class PronoteEvaluationsCard extends LitElement {
         .below-average .evaluation-color > span, .below-ratio .evaluation-color > span {
             background-color: orange;
         }		
-		
-
         .evaluation-subject {
             font-weight: bold;
             display: block;
