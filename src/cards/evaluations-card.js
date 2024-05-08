@@ -251,12 +251,14 @@ class PronoteEvaluationsCard extends LitElement {
         input[type="checkbox"] {
             display: none;
         }
+        /** FIXME
         .evaluation-row:has(input:checked) .acquisition-icon {
             display:none;
         }
         .evaluation-row:has(input:checked) + .acquisition-row {
             display: table-row;
         }
+        */
         .acquisition-row td:nth-child(2) {
             text-align: right;
         }
