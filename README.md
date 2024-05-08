@@ -81,3 +81,32 @@ display_class_average: true
 display_class_min: true
 display_class_max: true
 ```
+
+### Evaluations
+  
+![Evaluations card example](/doc/images/evaluations-card.png "Evaluations card example").
+  
+```yaml
+type: custom:pronote-evaluations-card
+entity: sensor.pronote_XXXX_YYYY_evaluations
+display_header: true
+display_description: true
+display_teacher: true
+display_date: true
+display_comment: true
+display_coefficient: true
+max_evaluations: null
+child_name: null
+```
+
+### Absences
+  
+![Absences card example](/doc/images/absences-card.png "Absences card example").
+  
+```yaml
+type: custom:pronote-absences-card
+entity: sensor.pronote_XXXX_YYYY_absences
+display_header: true
+max_absences: null
+child_name: null
+```
