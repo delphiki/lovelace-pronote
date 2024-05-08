@@ -24,7 +24,7 @@ class PronoteEvaluationsCard extends LitElement {
         let child_sensor = this.config.entity.split('_evaluations')[0];
         let child_attributes = this.hass.states[child_sensor].attributes;
         let child_name = (typeof child_attributes['nickname'] === 'string' && child_attributes['nickname'].length > 0) ? child_attributes['nickname'] : child_attributes['full_name'];
-		child_name = (this.config.child_name !== null) ? this.config.child_name : child_name;
+        child_name = (this.config.child_name !== null) ? this.config.child_name : child_name;
         return html`<div class="pronote-card-header">Evaluations de ${child_name}</div>`;
     }
 
@@ -38,7 +38,6 @@ class PronoteEvaluationsCard extends LitElement {
     getAcquisitionIcon(acquisition) {
         return html`<span title="${acquisition.level}" class="acquisition-icon acquisition-icon-${acquisition.abbreviation.replace('+', 'plus')}">
             ${acquisition.abbreviation === 'A+' ? '+' : (acquisition.abbreviation === 'Abs' ? 'a' : '')}
-
         </span>`;
     }
 
@@ -46,8 +45,8 @@ class PronoteEvaluationsCard extends LitElement {
         let acquisitions = evaluation.acquisitions;
         let acquisitionIcons = [];
         let acquisitionsRows = [];
-		var lesson_background_color=lessons_colors[evaluation.subject];
-			
+        let lesson_background_color = lessons_colors[evaluation.subject];
+
         for (let i = 0; i < acquisitions.length; i++) {
             acquisitionIcons.push(this.getAcquisitionIcon(acquisitions[i]));
             acquisitionsRows.push(this.getAcquisitionRow(acquisitions[i]));
@@ -61,13 +60,12 @@ class PronoteEvaluationsCard extends LitElement {
                 <label for="evaluation-full-detail-${index}">
                     <span class="evaluation-subject">${evaluation.subject}</span>
                 </label>
- 				${this.config.display_teacher ? html`<span class="evaluation-teacher">${evaluation.teacher}</span>` : ''}
+                ${this.config.display_teacher ? html`<span class="evaluation-teacher">${evaluation.teacher}</span>` : ''}
                 <input type="checkbox" id="evaluation-full-detail-${index}" />
-				${this.config.display_comment ? html`<span class="evaluation-comment">${evaluation.name}</span>` : ''}
-               ${this.config.display_description ? html`<span class="evaluation-description">${evaluation.description}</span>` : ''}
+                ${this.config.display_comment ? html`<span class="evaluation-comment">${evaluation.name}</span>` : ''}
+                ${this.config.display_description ? html`<span class="evaluation-description">${evaluation.description}</span>` : ''}
                 ${this.config.display_date ? html`<span class="evaluation-date">${this.getFormattedDate(evaluation.date)}</span>`: ''}
                 ${this.config.display_coefficient && evaluation.coefficient ? html`<span class="evaluation-coefficient">Coef. ${evaluation.coefficient}</span>` : ''}
-				
             </td>
             <td class="evaluation-detail">
                 ${acquisitionIcons}
@@ -88,20 +86,18 @@ class PronoteEvaluationsCard extends LitElement {
 
         if (stateObj) {
 
-
             const evaluationsRows = [];
             const itemTemplates = [];
 
-
-			// Va chercher les couleurs des matières
-			const lessons = this.hass.states[this.config.entity.replace("_evaluations", "_timetable_period")].attributes['lessons']
-			var lessons_colors = {};
-			if (lessons) {
-				for (let index = 0; index < lessons.length; index++) {
-					let lesson = lessons[index];
-					lessons_colors[lesson.lesson]=lesson.background_color;
-				}				
-			}
+            // Va chercher les couleurs des matières
+            const lessons = this.hass.states[this.config.entity.replace("_evaluations", "_timetable_period")].attributes['lessons']
+            var lessons_colors = {};
+            if (lessons) {
+                for (let index = 0; index < lessons.length; index++) {
+                    let lesson = lessons[index];
+                    lessons_colors[lesson.lesson]=lesson.background_color;
+                }
+            }
 
             for (let index = 0; index < max_evaluations; index++) {
                 let evaluation = evaluations[index];
@@ -133,7 +129,7 @@ class PronoteEvaluationsCard extends LitElement {
             entity: null,
             display_header: true,
             display_description: true,
-			display_teacher: true,
+            display_teacher: true,
             display_date: true,
             display_comment: true,
             display_coefficient: true,
@@ -191,7 +187,7 @@ class PronoteEvaluationsCard extends LitElement {
         }
         .below-average .evaluation-color > span, .below-ratio .evaluation-color > span {
             background-color: orange;
-        }		
+        }
         .evaluation-subject {
             font-weight: bold;
             display: block;
@@ -225,11 +221,11 @@ class PronoteEvaluationsCard extends LitElement {
             border-radius:50%;
             border: solid 0.02em rgba(0, 0, 0, 0.5);
             margin-left: 4px;
-			vertical-align: middle; 
+            vertical-align: middle; 
             color: white;
             content: '+';
             text-align:center;
-            line-height:14px;			
+            line-height:14px;
         }
         .acquisition-icon-Aplus {
             background-color: #008000;
@@ -248,9 +244,8 @@ class PronoteEvaluationsCard extends LitElement {
         }
         .acquisition-icon-E {
             background-color: #F80A0A;
-        }        
-		
-		.acquisition-row {
+        }
+        .acquisition-row {
             display: none;
         }
         input[type="checkbox"] {
@@ -261,7 +256,7 @@ class PronoteEvaluationsCard extends LitElement {
         }
         .evaluation-row:has(input:checked) + .acquisition-row {
             display: table-row;
-        }        
+        }
         .acquisition-row td:nth-child(2) {
             text-align: right;
         }

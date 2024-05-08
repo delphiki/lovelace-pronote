@@ -6,7 +6,6 @@ const css = LitElement.prototype.css;
 
 class PronoteAbsencesCard extends LitElement {
 
-
     static get properties() {
         return {
             config: {},
@@ -27,30 +26,23 @@ class PronoteAbsencesCard extends LitElement {
         let to = this.getFormattedDate(absence.to);
         let content = html`
         <tr>
-                        <td class="absence-status">
+            <td class="absence-status">
                 <span>${absence.justified ? html`<ha-icon icon="mdi:check"></ha-icon>` : html`<ha-icon icon="mdi:clock-alert-outline"></ha-icon>`}</span>
-                    
             </td>
             <td><span style="background-color:${absence.justified ? '#107c41' : '#e73a1f'}"></span></td>
-
-			<td><span class="absence-from">${from} au ${to}</span><br><span class="absence-hours">${absence.hours} de cours manquées</span> 
-		</td>
-			
+            <td><span class="absence-from">${from} au ${to}</span><br><span class="absence-hours">${absence.hours} de cours manquées</span>
+        </td>
             <td>
                 <span class="absence-reason">${absence.reason}</span>
-                
             </td>
         </tr>
         `
         return html`${content}`;
     }
 
-
-
-	getFormattedDate(date) {
-		return (new Date(date)) ? new Date(date).toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(/^(.)/, (match) => match.toUpperCase()) : '';
-	}
-
+    getFormattedDate(date) {
+        return (new Date(date)) ? new Date(date).toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(/^(.)/, (match) => match.toUpperCase()) : '';
+    }
 
     render() {
         if (!this.config || !this.hass) {
@@ -65,11 +57,11 @@ class PronoteAbsencesCard extends LitElement {
             let dayTemplates = [];
             let absencesCount = 0;
             for (let index = 0; index < absences.length; index++) {
-				absencesCount++;
-				if (this.config.max_absences && this.config.max_absences < absencesCount) {
-					break;
-				}                
-				let absence = absences[index];
+                absencesCount++;
+                if (this.config.max_absences && this.config.max_absences < absencesCount) {
+                    break;
+                }
+                let absence = absences[index];
                 dayTemplates.push(this.getAbsencesRow(absence));
             }
             itemTemplates.push(html`<table>${dayTemplates}</table>`);
@@ -108,7 +100,7 @@ class PronoteAbsencesCard extends LitElement {
             padding: 12px;
             font-weight:bold;
             font-size:1em;
-		}
+        }
         table{
             clear:both;
             font-size: 0.9em;
@@ -147,14 +139,14 @@ class PronoteAbsencesCard extends LitElement {
         }
         span.absence-from {
             color: white;
-            font-weight:bold;			
+            font-weight:bold;
             padding: 4px;
             border-radius: 4px;
         }
-		span.absence-hours {
+        span.absence-hours {
             font-size: 0.9em;
-            padding: 4px;        
-		}
+            padding: 4px;
+        }
         table + div {
             border-top: 1px solid white;
         }
