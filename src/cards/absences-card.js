@@ -64,7 +64,13 @@ class PronoteAbsencesCard extends LitElement {
                 let absence = absences[index];
                 dayTemplates.push(this.getAbsencesRow(absence));
             }
-            itemTemplates.push(html`<table>${dayTemplates}</table>`);
+
+            if (absencesCount > 0) {
+                itemTemplates.push(html`<table>${dayTemplates}</table>`);
+            } else {
+                itemTemplates.push(html`<span class="no-absence">Pas d'absence à afficher</span>`)
+            }
+
             return html`
                 <ha-card id="${this.config.entity}-card">
                     ${this.config.display_header ? this.getCardHeader() : ''}
@@ -101,6 +107,12 @@ class PronoteAbsencesCard extends LitElement {
             padding: 12px;
             font-weight:bold;
             font-size:1em;
+        }
+        .no-absence {
+            display:block;
+            padding:8px;
+            text-align: center;
+            font-style: italic;
         }
         table{
             clear:both;
