@@ -131,7 +131,7 @@ class PronoteAbsencesCard extends LitElement {
             text-align: left;
         }
         tr td:first-child {
-            width: 13%;
+            width: 10%;
             text-align:right;
         }
         span.absence-reason {
