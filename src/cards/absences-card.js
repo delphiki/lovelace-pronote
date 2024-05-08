@@ -16,8 +16,8 @@ class PronoteAbsencesCard extends LitElement {
     getCardHeader() {
         let child_sensor = this.config.entity.split('_absences')[0];
         let child_attributes = this.hass.states[child_sensor].attributes;
-        let child_name = (typeof child_attributes['nickname'] === 'string' && child_attributes['nickname'] !== '') ? child_attributes['nickname'] : child_attributes['full_name'];
-		child_name = (this.config.child_name !== null) ? this.config.child_name : child_name;
+        let child_name = (typeof child_attributes['nickname'] === 'string' && child_attributes['nickname'].length > 0) ? child_attributes['nickname'] : child_attributes['full_name'];
+        child_name = (this.config.child_name !== null) ? this.config.child_name : child_name;
         return html`<div class="pronote-card-header">Absences de ${child_name}</div>`;
     }
 
@@ -82,7 +82,8 @@ class PronoteAbsencesCard extends LitElement {
         const defaultConfig = {
             entity: null,
             display_header: true,
-            max_absences: null
+            max_absences: null,
+            child_name: null,
         }
 
         this.config = {
