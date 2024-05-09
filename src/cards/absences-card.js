@@ -151,7 +151,6 @@ class PronoteAbsencesCard extends LitElement {
             margin-top:4px;
         }
         span.absence-from {
-            color: white;
             font-weight:bold;
             padding: 4px;
             border-radius: 4px;
