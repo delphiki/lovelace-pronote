@@ -35,11 +35,20 @@ class PronoteEvaluationsCard extends LitElement {
         </tr>`;
     }
 
-    getAcquisitionIcon(acquisition) {
-        return html`<span title="${acquisition.level}" class="acquisition-icon acquisition-icon-${acquisition.abbreviation.replace('+', 'plus')}">
-            ${acquisition.abbreviation === 'A+' ? '+' : (acquisition.abbreviation === 'Abs' ? 'a' : '')}
-        </span>`;
-    }
+	getAcquisitionIcon(acquisition) {
+		const remappedEvaluations = this.config.mapping_evaluations[acquisition.abbreviation] || acquisition.abbreviation;
+		let icon = '';
+		if (remappedEvaluations === 'A+') {
+			icon = '+';
+		} else if (remappedEvaluations === 'Abs') {
+			icon = 'a';
+		}
+		return html`
+			<span title="${remappedEvaluations}" class="acquisition-icon acquisition-icon-${remappedEvaluations.replace('+', 'plus')}">
+				${icon}
+			</span>
+		`;
+	}
 
     getEvaluationRow(evaluation, index, lessons_colors) {
         let acquisitions = evaluation.acquisitions;
@@ -134,7 +143,8 @@ class PronoteEvaluationsCard extends LitElement {
             display_comment: true,
             display_coefficient: true,
             max_evaluations: null,
-            child_name: null
+            child_name: null,
+			mapping_evaluations: {}
         }
 
         this.config = {
