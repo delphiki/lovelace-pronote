@@ -68,7 +68,7 @@ class PronoteAbsencesCard extends LitElement {
             if (absencesCount > 0) {
                 itemTemplates.push(html`<table>${dayTemplates}</table>`);
             } else {
-                itemTemplates.push(html`<span class="no-absence">Pas d'absence à afficher</span>`)
+                itemTemplates.push(html`<span class="no-data">Pas d'absence à afficher</span>`)
             }
 
             return html`
@@ -89,7 +89,7 @@ class PronoteAbsencesCard extends LitElement {
             entity: null,
             display_header: true,
             max_absences: null,
-            child_name: null,
+            child_name: null
         }
 
         this.config = {
@@ -108,7 +108,7 @@ class PronoteAbsencesCard extends LitElement {
             font-weight:bold;
             font-size:1em;
         }
-        .no-absence {
+        .no-data {
             display:block;
             padding:8px;
             text-align: center;
@@ -151,7 +151,6 @@ class PronoteAbsencesCard extends LitElement {
             margin-top:4px;
         }
         span.absence-from {
-            color: white;
             font-weight:bold;
             padding: 4px;
             border-radius: 4px;
