@@ -86,42 +86,44 @@ class PronoteHomeworkCard extends LitElement {
         const homework = this.hass.states[this.config.entity].attributes['homework']
 
         if (stateObj) {
-            let latestHomeworkDay = this.getFormattedDate(homework[0].date);
             const currentWeekNumber = new Date().getWeekNumber();
             const itemTemplates = [];
             let dayTemplates = [];
 
-            for (let index = 0; index < homework.length; index++) {
-                let hw = homework[index];
-                let currentFormattedDate = this.getFormattedDate(hw.date);
+            if (homework.length > 0) {
+                let latestHomeworkDay = this.getFormattedDate(homework[0].date);
+                for (let index = 0; index < homework.length; index++) {
+                    let hw = homework[index];
+                    let currentFormattedDate = this.getFormattedDate(hw.date);
 
-                if (hw.done === true && this.config.display_done_homework === false) {
-                    continue;
-                }
-
-                if (latestHomeworkDay !== currentFormattedDate) {
-                    if (dayTemplates.length > 0) {
-                        itemTemplates.push(this.getDayHeader(homework[index-1]));
-                        itemTemplates.push(html`<table class="${this.config.reduce_done_homework ? 'reduce-done' : ''}">${dayTemplates}</table>`);
-                        dayTemplates = [];
+                    if (hw.done === true && this.config.display_done_homework === false) {
+                        continue;
                     }
-                    
-                    latestHomeworkDay = currentFormattedDate;
+
+                    if (latestHomeworkDay !== currentFormattedDate) {
+                        if (dayTemplates.length > 0) {
+                            itemTemplates.push(this.getDayHeader(homework[index-1]));
+                            itemTemplates.push(html`<table class="${this.config.reduce_done_homework ? 'reduce-done' : ''}">${dayTemplates}</table>`);
+                            dayTemplates = [];
+                        }
+
+                        latestHomeworkDay = currentFormattedDate;
+                    }
+
+                    if (this.config.current_week_only && new Date(hw.date).getWeekNumber() !== currentWeekNumber) {
+                        break;
+                    }
+
+                    dayTemplates.push(this.getHomeworkRow(hw, index));
                 }
 
-                if (this.config.current_week_only && new Date(hw.date).getWeekNumber() !== currentWeekNumber) {
-                    break;
+                if (dayTemplates.length > 0 && (
+                    !this.config.current_week_only
+                    || (this.config.current_week_only && currentWeekNumber === new Date(homework[homework.length-1].date).getWeekNumber())
+                )) {
+                    itemTemplates.push(this.getDayHeader(homework[homework.length-1]));
+                    itemTemplates.push(html`<table class="${this.config.reduce_done_homework ? 'reduce-done' : ''}">${dayTemplates}</table>`);
                 }
-
-                dayTemplates.push(this.getHomeworkRow(hw, index));
-            }
-
-            if (dayTemplates.length > 0 && (
-                !this.config.current_week_only
-                || (this.config.current_week_only && currentWeekNumber === new Date(homework[homework.length-1].date).getWeekNumber())
-            )) {
-                itemTemplates.push(this.getDayHeader(homework[homework.length-1]));
-                itemTemplates.push(html`<table class="${this.config.reduce_done_homework ? 'reduce-done' : ''}">${dayTemplates}</table>`);
             }
 
             if (itemTemplates.length === 0) {
