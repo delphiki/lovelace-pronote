@@ -61,7 +61,6 @@ class PronoteEvaluationsCard extends LitElement {
             acquisitionsRows.push(this.getAcquisitionRow(acquisitions[i]));
         }
 
-
         return html`
         <tr class="evaluation-row">
             <td class="evaluation-color"><span style="background-color:${lesson_background_color}"></span></td>
@@ -144,7 +143,7 @@ class PronoteEvaluationsCard extends LitElement {
             display_coefficient: true,
             max_evaluations: null,
             child_name: null,
-			mapping_evaluations: {}
+            mapping_evaluations: {}
         }
 
         this.config = {

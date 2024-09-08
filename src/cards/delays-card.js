@@ -143,13 +143,13 @@ class PronoteDelaysCard extends LitElement {
             padding: 12px;
             font-weight:bold;
             font-size:1em;
-		}
+        }
         .no-data {
             display:block;
             padding:8px;
             text-align: center;
             font-style: italic;
-        }        
+        }
         table{
             clear:both;
             font-size: 0.9em;
@@ -188,14 +188,14 @@ class PronoteDelaysCard extends LitElement {
         }
         span.delay-from {
             color: white;
-            font-weight:bold;			
+            font-weight:bold;
             padding: 4px;
             border-radius: 4px;
         }
-		span.delay-hours {
+        span.delay-hours {
             font-size: 0.9em;
-            padding: 4px;        
-		}
+            padding: 4px;
+        }
         table + div {
             border-top: 1px solid white;
         }
