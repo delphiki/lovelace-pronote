@@ -104,23 +104,28 @@ class PronoteTimetableCard extends LitElement {
         const stateObj = this.hass.states[this.config.entity];
 
         const lessons = this.hass.states[this.config.entity].attributes['lessons']
-        const day_start_at = this.hass.states[this.config.entity].attributes['day_start_at']
-        const day_end_at = this.hass.states[this.config.entity].attributes['day_end_at']
 
         if (stateObj) {
             this.lunchBreakRendered = false;
-
-            let latestLessonDay = this.getFormattedDate(lessons[0]);
             const currentWeekNumber = new Date().getWeekNumber();
 
             const itemTemplates = [];
             let dayTemplates = [];
-            let daysCount = 1;
-            itemTemplates.push(this.getDayHeader(lessons[0], day_start_at, day_end_at));
+            let daysCount = 0;
+
+            let dayStartAt = null;
+            let dayEndAt = null;
 
             for (let index = 0; index < lessons.length; index++) {
                 let lesson = lessons[index];
                 let currentFormattedDate = this.getFormattedDate(lesson);
+
+                if (!lesson.canceled) {
+                    if (dayStartAt === null) {
+                        dayStartAt = lesson.start_at;
+                    }
+                    dayEndAt = lesson.end_at;
+                }
 
                 if (lesson.canceled && index < lessons.length - 1) {
                     let nextLesson = lessons[index + 1];
@@ -135,22 +140,23 @@ class PronoteTimetableCard extends LitElement {
                     }
                 }
 
-                if (latestLessonDay !== currentFormattedDate) {
+                dayTemplates.push(this.getTimetableRow(lesson));
+
+                // checking if next lesson is on another day
+                if (index + 1 >= lessons.length || ((index + 1) < lessons.length && currentFormattedDate !== this.getFormattedDate(lessons[index+1]))) {
+                    itemTemplates.push(this.getDayHeader(lesson, dayStartAt, dayEndAt));
                     itemTemplates.push(html`<table>${dayTemplates}</table>`);
                     dayTemplates = [];
+
+                    this.lunchBreakRendered = false;
+                    dayStartAt = null;
+                    dayEndAt = null;
 
                     daysCount++;
                     if (this.config.max_days && this.config.max_days < daysCount) {
                         break;
                     }
-
-                    itemTemplates.push(this.getDayHeader(lesson));
-
-                    this.lunchBreakRendered = false;
-                    latestLessonDay = currentFormattedDate;
                 }
-
-                dayTemplates.push(this.getTimetableRow(lesson));
             }
             itemTemplates.push(html`<table>${dayTemplates}</table>`);
 
