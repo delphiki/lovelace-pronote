@@ -111,3 +111,15 @@ display_header: true
 max_absences: null
 child_name: null
 ```
+
+### Delays
+  
+![Absences card example](/doc/images/delays-card.png "Delays card example").
+  
+```yaml
+type: custom:pronote-delays-card
+entity: sensor.pronote_XXXX_YYYY_delays
+display_header: true
+max_delays: null
+child_name: null
+```
