@@ -29,6 +29,17 @@ class PronoteTimetableCard extends LitElement {
         return html`<div class="pronote-card-header">Emploi du temps de ${child_name}</div>`;
     }
 
+    getBreakRow(label, ended) {
+        return html`
+        <tr class="lunch-break ${ended ? 'lesson-ended' : ''}">
+            <td></td>
+            <td><span></span></td>
+            <td colspan="2">
+                <span class="lesson-name">${label}</span>
+            </td>
+        </tr>`;
+    }
+
     getTimetableRow(lesson) {
         let currentDate = new Date();
         let startAt = Date.parse(lesson.start_at);
@@ -36,14 +47,7 @@ class PronoteTimetableCard extends LitElement {
 
         let prefix = html``;
         if (this.config.display_lunch_break && lesson.is_afternoon && !this.lunchBreakRendered) {
-            prefix = html`
-            <tr class="lunch-break ${this.config.dim_ended_lessons && startAt < currentDate ? 'lesson-ended' : ''}">
-                <td></td>
-                <td><span></span></td>
-                <td colspan="2">
-                    <span class="lesson-name">Repas</span>
-                </td>
-            </tr>`;
+            prefix = this.getBreakRow('Repas', this.config.dim_ended_lessons && startAt < currentDate);
             this.lunchBreakRendered = true;
         }
 
