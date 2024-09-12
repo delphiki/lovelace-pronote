@@ -153,7 +153,7 @@ class PronoteTimetableCard extends LitElement {
                     dayEndAt = null;
 
                     daysCount++;
-                    if (this.config.max_days && this.config.max_days < daysCount) {
+                    if (this.config.max_days && this.config.max_days <= daysCount) {
                         break;
                     }
                 }
