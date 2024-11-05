@@ -235,3 +235,11 @@ class PronoteGradesCard extends LitElement {
 }
 
 customElements.define("pronote-grades-card", PronoteGradesCard);
+
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: "pronote-grades-card",
+    name: "Pronote Grades Card",
+    description: "Display the grades from Pronote",
+    documentationURL: "https://github.com/delphiki/lovelace-pronote?tab=readme-ov-file#grades",
+});

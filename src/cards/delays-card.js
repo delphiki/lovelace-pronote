@@ -204,3 +204,11 @@ class PronoteDelaysCard extends LitElement {
 }
 
 customElements.define("pronote-delays-card", PronoteDelaysCard);
+
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: "pronote-delays-card",
+    name: "Pronote Delays Card",
+    description: "Display the delays from Pronote",
+    documentationURL: "https://github.com/delphiki/lovelace-pronote?tab=readme-ov-file#delays",
+});

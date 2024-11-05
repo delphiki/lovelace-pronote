@@ -239,3 +239,11 @@ class PronoteHomeworkCard extends LitElement {
 }
 
 customElements.define("pronote-homework-card", PronoteHomeworkCard);
+
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: "pronote-homework-card",
+    name: "Pronote Homework Card",
+    description: "Display the homework from Pronote",
+    documentationURL: "https://github.com/delphiki/lovelace-pronote?tab=readme-ov-file#homework",
+});

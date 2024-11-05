@@ -207,3 +207,11 @@ class PronoteAveragesCard extends LitElement {
 }
 
 customElements.define("pronote-averages-card", PronoteAveragesCard);
+
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: "pronote-averages-card",
+    name: "Pronote Averages Card",
+    description: "Display the averages from Pronote",
+    documentationURL: "https://github.com/delphiki/lovelace-pronote?tab=readme-ov-file#averages",
+});

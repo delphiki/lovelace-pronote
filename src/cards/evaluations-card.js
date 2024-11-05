@@ -276,3 +276,11 @@ class PronoteEvaluationsCard extends LitElement {
 }
 
 customElements.define("pronote-evaluations-card", PronoteEvaluationsCard);
+
+window.customCards = window.customCards || [];
+window.customCards.push({
+    type: "pronote-evaluations-card",
+    name: "Pronote Evaluations Card",
+    description: "Display the evaluations from Pronote",
+    documentationURL: "https://github.com/delphiki/lovelace-pronote?tab=readme-ov-file#evaluations",
+});
