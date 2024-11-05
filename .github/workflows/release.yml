@@ -14,17 +14,15 @@ jobs:
       # Build
       - name: Build the file
         run: |
-          cd /home/runner/work/lovelace-pronote/lovelace-pronote
           npm install
           npm run build
 
       # Upload build file to the releas as an asset.
-      - name: Upload zip to release
+      - name: Upload built package to release
         uses: svenstaro/upload-release-action@v1-release
-
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: /home/runner/work/lovelace-pronote/lovelace-pronote/dist/pronote.js
+          file: dist/pronote.js
           asset_name: pronote.js
           tag: ${{ github.ref }}
           overwrite: true
