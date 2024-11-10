@@ -164,6 +164,18 @@ class PronoteAbsencesCard extends LitElement {
         }
         `;
     }
+
+    static getStubConfig() {
+        return {
+            display_header: true,
+            max_absences: null,
+            child_name: null,
+        }
+    }
+
+    static getConfigElement() {
+        return document.createElement("pronote-absences-card-editor");
+    }
 }
 
 customElements.define("pronote-absences-card", PronoteAbsencesCard);

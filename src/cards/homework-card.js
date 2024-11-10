@@ -236,6 +236,19 @@ class PronoteHomeworkCard extends LitElement {
         }
         `;
     }
+
+    static getStubConfig() {
+        return {
+            display_header: true,
+            current_week_only: true,
+            reduce_done_homework: true,
+            display_done_homework: true,
+        }
+    }
+
+    static getConfigElement() {
+        return document.createElement("pronote-homework-card-editor");
+    }
 }
 
 customElements.define("pronote-homework-card", PronoteHomeworkCard);

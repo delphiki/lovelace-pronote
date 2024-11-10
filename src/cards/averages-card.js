@@ -98,7 +98,6 @@ class PronoteAveragesCard extends LitElement {
             entity: null,
             average_format: 'full',
             display_header: true,
-            display_comment: true,
             display_class_average: true,
             compare_with_class_average: true,
             compare_with_ratio: null,
@@ -203,6 +202,22 @@ class PronoteAveragesCard extends LitElement {
             content: ' - '
         }
         `;
+    }
+
+    static getStubConfig() {
+        return {
+            average_format: 'full',
+            display_header: true,
+            display_class_average: true,
+            compare_with_class_average: true,
+            compare_with_ratio: null,
+            display_class_min: true,
+            display_class_max: true,
+        }
+    }
+
+    static getConfigElement() {
+        return document.createElement("pronote-averages-card-editor");
     }
 }
 

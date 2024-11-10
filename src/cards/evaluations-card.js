@@ -143,7 +143,7 @@ class PronoteEvaluationsCard extends LitElement {
             display_coefficient: true,
             max_evaluations: null,
             child_name: null,
-            mapping_evaluations: {}
+            mapping_evaluations: {},
         }
 
         this.config = {
@@ -272,6 +272,24 @@ class PronoteEvaluationsCard extends LitElement {
             text-align: right;
         }
         `;
+    }
+
+    static getStubConfig() {
+        return {
+            display_header: true,
+            display_description: true,
+            display_teacher: true,
+            display_date: true,
+            display_comment: true,
+            display_coefficient: true,
+            max_evaluations: null,
+            child_name: null,
+            mapping_evaluations: {},
+        }
+    }
+
+    static getConfigElement() {
+        return document.createElement("pronote-evaluations-card-editor");
     }
 }
 

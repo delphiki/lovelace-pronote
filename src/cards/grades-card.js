@@ -232,6 +232,27 @@ class PronoteGradesCard extends LitElement {
         }
         `;
     }
+
+    static getStubConfig() {
+        return {
+            grade_format: 'full',
+            display_header: true,
+            display_date: true,
+            display_comment: true,
+            display_class_average: true,
+            compare_with_class_average: true,
+            compare_with_ratio: null,
+            display_coefficient: true,
+            display_class_min: true,
+            display_class_max: true,
+            display_new_grade_notice: true,
+            max_grades: null,
+        }
+    }
+
+    static getConfigElement() {
+        return document.createElement("pronote-grades-card-editor");
+    }
 }
 
 customElements.define("pronote-grades-card", PronoteGradesCard);

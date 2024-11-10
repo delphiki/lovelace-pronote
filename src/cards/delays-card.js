@@ -201,6 +201,18 @@ class PronoteDelaysCard extends LitElement {
         }
         `;
     }
+
+    static getStubConfig() {
+        return {
+            display_header: true,
+            max_delays: null,
+            child_name: null,
+        }
+    }
+
+    static getConfigElement() {
+        return document.createElement("pronote-delays-card-editor");
+    }
 }
 
 customElements.define("pronote-delays-card", PronoteDelaysCard);

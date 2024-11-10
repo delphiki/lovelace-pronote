@@ -261,6 +261,22 @@ class PronoteTimetableCard extends LitElement {
         }
         `;
     }
+
+    static getStubConfig() {
+        return {
+            display_header: true,
+            display_lunch_break: true,
+            display_classroom: true,
+            display_teacher: true,
+            display_day_hours: true,
+            dim_ended_lessons: true,
+            current_week_only: false,
+        }
+    }
+
+    static getConfigElement() {
+        return document.createElement("pronote-timetable-card-editor");
+    }
 }
 
 customElements.define("pronote-timetable-card", PronoteTimetableCard);
