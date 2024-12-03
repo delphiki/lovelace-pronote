@@ -83,14 +83,14 @@ class PronoteHomeworkCard extends LitElement {
         }
 
         const stateObj = this.hass.states[this.config.entity];
-        const homework = this.hass.states[this.config.entity].attributes['homework']
+        const homework = this.hass.states[this.config.entity].attributes['homework'];
 
         if (stateObj) {
             const currentWeekNumber = new Date().getWeekNumber();
             const itemTemplates = [];
             let dayTemplates = [];
 
-            if (homework.length > 0) {
+            if (homework && homework.length > 0) {
                 let latestHomeworkDay = this.getFormattedDate(homework[0].date);
                 for (let index = 0; index < homework.length; index++) {
                     let hw = homework[index];
