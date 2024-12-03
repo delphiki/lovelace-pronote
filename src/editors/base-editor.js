@@ -13,8 +13,6 @@ class BasePronoteCardEditor extends LitElement {
     }
 
     setConfig(config) {
-        console.log(this.hass);
-
         this._config = config;
         this.loadEntityPicker();
     }
