@@ -20,6 +20,7 @@ class PronoteTimetableCardEditor extends BasePronoteCardEditor {
             ${this.buildSwitchField('Display day hours', 'display_day_hours', this._config.display_day_hours, true)}
             ${this.buildSwitchField('Display lunch break', 'display_lunch_break', this._config.display_lunch_break, true)}
             ${this.buildSwitchField('Dim ended lessons', 'dim_ended_lessons', this._config.dim_ended_lessons, true)}
+            ${this.buildSwitchField('Enable slider', 'enable_slider', this._config.enable_slider, false)}
         `;
     }
 }
