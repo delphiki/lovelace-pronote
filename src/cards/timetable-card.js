@@ -340,6 +340,7 @@ class PronoteTimetableCard extends LitElement {
             display_teacher: true,
             display_day_hours: true,
             dim_ended_lessons: true,
+            max_days: null,
             current_week_only: false,
             enable_slider: false,
         }
