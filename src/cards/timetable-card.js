@@ -202,6 +202,14 @@ class PronoteTimetableCard extends LitElement {
                     if (this.config.max_days && this.config.max_days <= daysCount) {
                         break;
                     }
+                } else if (this.config.display_free_time_slots && index + 1 < lessons.length) {
+                    const currentEndAt = new Date(lesson.end_at);
+                    const nextLesson = lessons[index+1];
+                    const nextLessonStartAt = new Date(nextLesson.start_at);
+                    if (lesson.is_morning === nextLesson.is_morning && Math.floor((nextLessonStartAt-currentEndAt) / 1000 / 60) > 30) {
+                        const now = new Date();
+                        dayTemplates.push(this.getBreakRow('Pas de cours', this.config.dim_ended_lessons && nextLessonStartAt < now));
+                    }
                 }
             }
 
@@ -234,6 +242,7 @@ class PronoteTimetableCard extends LitElement {
             max_days: null,
             current_week_only: false,
             enable_slider: false,
+            display_free_time_slots: true,
         }
 
         this.config = {
@@ -343,6 +352,7 @@ class PronoteTimetableCard extends LitElement {
             max_days: null,
             current_week_only: false,
             enable_slider: false,
+            display_free_time_slots: true,
         }
     }
 
