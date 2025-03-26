@@ -1,30 +1,18 @@
+import BasePeriodRelatedPronoteCard from './base-period-related-card';
+
 const LitElement = Object.getPrototypeOf(
     customElements.get("ha-panel-lovelace")
 );
+
 const html = LitElement.prototype.html;
 const css = LitElement.prototype.css;
 
-class PronoteGradesCard extends LitElement {
-
-    static get properties() {
-        return {
-            config: {},
-            hass: {}
-        };
-    }
-
+class PronoteGradesCard extends BasePeriodRelatedPronoteCard {
     getFormattedDate(date) {
         return (new Date(date))
             .toLocaleDateString('fr-FR', {weekday: 'short', day: '2-digit', month: '2-digit'})
             .replace(/^(.)/, (match) => match.toUpperCase())
         ;
-    }
-
-    getCardHeader() {
-        let child_sensor = this.config.entity.split('_grades')[0];
-        let child_attributes = this.hass.states[child_sensor].attributes;
-        let child_name = (typeof child_attributes['nickname'] === 'string' && child_attributes['nickname'].length > 0) ? child_attributes['nickname'] : child_attributes['full_name'];
-        return html`<div class="pronote-card-header">Notes de ${child_name}</div>`;
     }
 
     getGradeRow(gradeData) {
@@ -77,19 +65,17 @@ class PronoteGradesCard extends LitElement {
         `;
     }
 
-    render() {
-        if (!this.config || !this.hass) {
-            return html``;
-        }
-
+    getCardContent() {
         const stateObj = this.hass.states[this.config.entity];
-        const grades = this.hass.states[this.config.entity].attributes['grades']
+        const grades = this.getFilteredItems();
         const max_grades = this.config.max_grades ?? grades.length;
 
         if (stateObj) {
 
             const gradesRows = [];
-            const itemTemplates = [];
+            const itemTemplates = [
+                this.getPeriodSwitcher()
+            ];
 
 
             for (let index = 0; index < max_grades; index++) {
@@ -100,15 +86,10 @@ class PronoteGradesCard extends LitElement {
             if (gradesRows.length > 0) {
                 itemTemplates.push(html`<table>${gradesRows}</table>`);
             } else {
-                itemTemplates.push(html`<span class="no-grades">Pas de notes à afficher</span>`);
+                itemTemplates.push(this.noDataMessage());
             }
 
-            return html`
-                <ha-card id="${this.config.entity}-card">
-                    ${this.config.display_header ? this.getCardHeader() : ''}
-                    ${itemTemplates}
-                </ha-card>`
-            ;
+            return itemTemplates;
         }
     }
 
@@ -137,24 +118,16 @@ class PronoteGradesCard extends LitElement {
             ...defaultConfig,
             ...config
         };
+
+        this.header_title = 'Notes de ';
+        this.no_data_message = 'Aucune note disponible';
+        this.period_sensor_key = 'grades';
+        this.items_attribute_key = 'grades';
     }
 
     static get styles() {
         return css`
-        .pronote-card-header {
-            text-align:center;
-        }
-        div {
-            padding: 12px;
-            font-weight:bold;
-            font-size:1em;
-        }
-        .no-grades {
-            display:block;
-            padding:8px;
-            text-align: center;
-            font-style: italic;
-        }
+        ${super.styles}
         table {
             font-size: 0.9em;
             font-family: Roboto;

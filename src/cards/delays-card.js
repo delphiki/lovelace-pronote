@@ -1,32 +1,12 @@
+import BasePeriodRelatedPronoteCard from './base-period-related-card';
+
 const LitElement = Object.getPrototypeOf(
     customElements.get("ha-panel-lovelace")
 );
 const html = LitElement.prototype.html;
 const css = LitElement.prototype.css;
 
-class PronoteDelaysCard extends LitElement {
-    static get properties() {
-        return {
-            config: {},
-            hass: {}
-        };
-    }
-
-    // Récupère l'en-tête de la carte
-    getCardHeader() {
-        const childSensor = this.config.entity.split('_delays')[0];
-        const childAttributes = this.hass.states[childSensor].attributes;
-        const childName = (typeof childAttributes['nickname'] === 'string' && childAttributes['nickname'] !== '')
-            ? childAttributes['nickname']
-            : childAttributes['full_name'];
-
-        // Utilise le nom personnalisé si défini dans la configuration
-        const displayName = (this.config.child_name !== null)
-            ? this.config.child_name
-            : childName;
-
-        return html`<div class="pronote-card-header">Retards de ${displayName}</div>`;
-    }
+class PronoteDelaysCard extends BasePeriodRelatedPronoteCard {
 
     // Génère une ligne pour un retard donné
     getDelaysRow(delay) {
@@ -78,10 +58,14 @@ class PronoteDelaysCard extends LitElement {
         }
 
         const stateObj = this.hass.states[this.config.entity];
-        const delays = stateObj.attributes['delays'];
+        
 
         if (stateObj) {
-            const itemTemplates = [];
+
+            const delays = this.getFilteredItems();
+            const itemTemplates = [
+                this.getPeriodSwitcher()
+            ];
             let dayTemplates = [];
             let delaysCount = 0;
 
@@ -100,7 +84,7 @@ class PronoteDelaysCard extends LitElement {
             if (dayTemplates.length > 0) {
                 itemTemplates.push(html`<table>${dayTemplates}</table>`);
             } else {
-                itemTemplates.push(html`<span class="no-data">Pas de retard à afficher</span>`);
+                itemTemplates.push(this.noDataMessage());
             }
 
             // Ajoute l'en-tête de la carte si l'option est activée dans la configuration
@@ -125,31 +109,22 @@ class PronoteDelaysCard extends LitElement {
             entity: null,
             display_header: true,
             max_delays: null,
-            child_name: null
         }
 
         this.config = {
             ...defaultConfig,
             ...config
         };
+
+        this.header_title = 'Retards de ';
+        this.no_data_message = 'Aucun retard';
+        this.period_sensor_key = 'delays';
+        this.items_attribute_key = 'delays';
     }
 
     static get styles() {
         return css`
-        .pronote-card-header {
-            text-align:center;
-        }
-        div {
-            padding: 12px;
-            font-weight:bold;
-            font-size:1em;
-        }
-        .no-data {
-            display:block;
-            padding:8px;
-            text-align: center;
-            font-style: italic;
-        }
+        ${super.styles}
         table{
             clear:both;
             font-size: 0.9em;
@@ -206,7 +181,6 @@ class PronoteDelaysCard extends LitElement {
         return {
             display_header: true,
             max_delays: null,
-            child_name: null,
         }
     }
 

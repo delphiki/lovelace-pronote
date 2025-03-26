@@ -1,25 +1,12 @@
+import BasePeriodRelatedPronoteCard from './base-period-related-card';
+
 const LitElement = Object.getPrototypeOf(
     customElements.get("ha-panel-lovelace")
 );
 const html = LitElement.prototype.html;
 const css = LitElement.prototype.css;
 
-class PronoteAbsencesCard extends LitElement {
-
-    static get properties() {
-        return {
-            config: {},
-            hass: {}
-        };
-    }
-
-    getCardHeader() {
-        let child_sensor = this.config.entity.split('_absences')[0];
-        let child_attributes = this.hass.states[child_sensor].attributes;
-        let child_name = (typeof child_attributes['nickname'] === 'string' && child_attributes['nickname'].length > 0) ? child_attributes['nickname'] : child_attributes['full_name'];
-        child_name = (this.config.child_name !== null) ? this.config.child_name : child_name;
-        return html`<div class="pronote-card-header">Absences de ${child_name}</div>`;
-    }
+class PronoteAbsencesCard extends BasePeriodRelatedPronoteCard {
 
     getAbsencesRow(absence) {
         let from = this.getFormattedDate(absence.from);
@@ -44,16 +31,14 @@ class PronoteAbsencesCard extends LitElement {
         return (new Date(date)) ? new Date(date).toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(/^(.)/, (match) => match.toUpperCase()) : '';
     }
 
-    render() {
-        if (!this.config || !this.hass) {
-            return html``;
-        }
-
+    getCardContent() {
         const stateObj = this.hass.states[this.config.entity];
-        const absences = stateObj.attributes['absences']
 
         if (stateObj) {
-            const itemTemplates = [];
+            const absences = this.getFilteredItems();
+            const itemTemplates = [
+                this.getPeriodSwitcher()
+            ];
             let dayTemplates = [];
             let absencesCount = 0;
             for (let index = 0; index < absences.length; index++) {
@@ -68,15 +53,10 @@ class PronoteAbsencesCard extends LitElement {
             if (absencesCount > 0) {
                 itemTemplates.push(html`<table>${dayTemplates}</table>`);
             } else {
-                itemTemplates.push(html`<span class="no-data">Pas d'absence à afficher</span>`)
+                itemTemplates.push(this.noDataMessage());
             }
 
-            return html`
-                <ha-card id="${this.config.entity}-card">
-                    ${this.config.display_header ? this.getCardHeader() : ''}
-                    ${itemTemplates}
-                </ha-card>`
-            ;
+            return itemTemplates;
         }
     }
 
@@ -88,32 +68,23 @@ class PronoteAbsencesCard extends LitElement {
         const defaultConfig = {
             entity: null,
             display_header: true,
-            max_absences: null,
-            child_name: null
+            max_absences: null
         }
 
         this.config = {
             ...defaultConfig,
             ...config
         };
+
+        this.period_sensor_key = 'absences';
+        this.items_attribute_key = 'absences';
+        this.header_title = 'Absences de ';
+        this.no_data_message = 'Aucune absence';
     }
 
     static get styles() {
         return css`
-        .pronote-card-header {
-            text-align:center;
-        }
-        div {
-            padding: 12px;
-            font-weight:bold;
-            font-size:1em;
-        }
-        .no-data {
-            display:block;
-            padding:8px;
-            text-align: center;
-            font-style: italic;
-        }
+        ${super.styles}
         table{
             clear:both;
             font-size: 0.9em;
@@ -169,7 +140,6 @@ class PronoteAbsencesCard extends LitElement {
         return {
             display_header: true,
             max_absences: null,
-            child_name: null,
         }
     }
 

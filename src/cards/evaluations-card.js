@@ -1,31 +1,18 @@
+import BasePeriodRelatedPronoteCard from "./base-period-related-card";
+
 const LitElement = Object.getPrototypeOf(
     customElements.get("ha-panel-lovelace")
 );
 const html = LitElement.prototype.html;
 const css = LitElement.prototype.css;
 
-class PronoteEvaluationsCard extends LitElement {
-
-    static get properties() {
-        return {
-            config: {},
-            hass: {}
-        };
-    }
+class PronoteEvaluationsCard extends BasePeriodRelatedPronoteCard {
 
     getFormattedDate(date) {
         return (new Date(date))
             .toLocaleDateString('fr-FR', {weekday: 'short', day: '2-digit', month: '2-digit'})
             .replace(/^(.)/, (match) => match.toUpperCase())
         ;
-    }
-
-    getCardHeader() {
-        let child_sensor = this.config.entity.split('_evaluations')[0];
-        let child_attributes = this.hass.states[child_sensor].attributes;
-        let child_name = (typeof child_attributes['nickname'] === 'string' && child_attributes['nickname'].length > 0) ? child_attributes['nickname'] : child_attributes['full_name'];
-        child_name = (this.config.child_name !== null) ? this.config.child_name : child_name;
-        return html`<div class="pronote-card-header">Evaluations de ${child_name}</div>`;
     }
 
     getAcquisitionRow(acquisition) {
@@ -89,16 +76,18 @@ class PronoteEvaluationsCard extends LitElement {
         }
 
         const stateObj = this.hass.states[this.config.entity];
-        const evaluations = this.hass.states[this.config.entity].attributes['evaluations']
-        const max_evaluations = this.config.max_evaluations ?? evaluations.length;
 
         if (stateObj) {
+            const evaluations = this.getFilteredItems();
+            const max_evaluations = this.config.max_evaluations ?? evaluations.length;
 
             const evaluationsRows = [];
-            const itemTemplates = [];
+            const itemTemplates = [
+                this.getPeriodSwitcher()
+            ];
 
             // Va chercher les couleurs des matières
-            const lessons = this.hass.states[this.config.entity.replace("_evaluations", "_timetable_period")].attributes['lessons']
+            const lessons = this.hass.states[this.config.entity.replace("_evaluations", "_period_s_timetable")].attributes['lessons']
             var lessons_colors = {};
             if (lessons) {
                 for (let index = 0; index < lessons.length; index++) {
@@ -115,7 +104,7 @@ class PronoteEvaluationsCard extends LitElement {
             if (evaluationsRows.length > 0) {
                 itemTemplates.push(html`<table>${evaluationsRows}</table>`);
             } else {
-                itemTemplates.push(html`<span class="no-evaluation">Pas d'évaluation à afficher</span>`);
+                itemTemplates.push(this.noDataMessage());
             }
                 
 
@@ -142,7 +131,6 @@ class PronoteEvaluationsCard extends LitElement {
             display_comment: true,
             display_coefficient: true,
             max_evaluations: null,
-            child_name: null,
             mapping_evaluations: {},
         }
 
@@ -150,24 +138,16 @@ class PronoteEvaluationsCard extends LitElement {
             ...defaultConfig,
             ...config
         };
+
+        this.header_title = 'Evaluations de ';
+        this.no_data_message = 'Pas d\'évaluation à afficher';
+        this.period_sensor_key = 'evaluations';
+        this.items_attribute_key = 'evaluations';
     }
 
     static get styles() {
         return css`
-        .pronote-card-header {
-            text-align:center;
-        }
-        div {
-            padding: 12px;
-            font-weight:bold;
-            font-size:1em;
-        }
-        .no-evaluation {
-            display:block;
-            padding:8px;
-            text-align: center;
-            font-style: italic;
-        }
+        ${super.styles}
         table {
             font-size: 0.9em;
             font-family: Roboto;
@@ -283,7 +263,6 @@ class PronoteEvaluationsCard extends LitElement {
             display_comment: true,
             display_coefficient: true,
             max_evaluations: null,
-            child_name: null,
             mapping_evaluations: {},
         }
     }

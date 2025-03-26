@@ -1,4 +1,5 @@
-import {unsafeHTML} from 'https://unpkg.com/lit-html@2.8.0/directives/unsafe-html.js?module';
+import BasePronoteCard from "./base-card"
+import {unsafeHTML} from 'lit-html/directives/unsafe-html.js';
 
 const LitElement = Object.getPrototypeOf(
     customElements.get("ha-panel-lovelace")
@@ -13,23 +14,9 @@ Date.prototype.getWeekNumber = function () {
     return Math.ceil((((d - new Date(d.getFullYear(), 0, 1)) / 8.64e7) + 1) / 7);
 };
 
-class PronoteHomeworkCard extends LitElement {
+class PronoteHomeworkCard extends BasePronoteCard {
 
     lunchBreakRendered = false;
-
-    static get properties() {
-        return {
-            config: {},
-            hass: {}
-        };
-    }
-
-    getCardHeader() {
-        let child_sensor = this.config.entity.split('_homework')[0];
-        let child_attributes = this.hass.states[child_sensor].attributes;
-        let child_name = (typeof child_attributes['nickname'] === 'string' && child_attributes['nickname'] !== '') ? child_attributes['nickname'] : child_attributes['full_name'];
-        return html`<div class="pronote-card-header">Devoirs de ${child_name}</div>`;
-    }
 
     getFormattedDate(date) {
         return (new Date(date))
@@ -77,10 +64,7 @@ class PronoteHomeworkCard extends LitElement {
         `;
     }
 
-    render() {
-        if (!this.config || !this.hass) {
-            return html``;
-        }
+    getCardContent() {
 
         const stateObj = this.hass.states[this.config.entity];
         const homework = this.hass.states[this.config.entity].attributes['homework'];
@@ -127,15 +111,10 @@ class PronoteHomeworkCard extends LitElement {
             }
 
             if (itemTemplates.length === 0) {
-                itemTemplates.push(html`<span class="no-homework">Pas de devoirs à faire</span>`);
+                itemTemplates.push(this.noDataMessage());
             }
 
-            return html`
-                <ha-card id="${this.config.entity}-card">
-                    ${this.config.display_header ? this.getCardHeader() : ''}
-                    ${itemTemplates}
-                </ha-card>`
-            ;
+            return itemTemplates;
         }
     }
 
@@ -156,24 +135,14 @@ class PronoteHomeworkCard extends LitElement {
             ...defaultConfig,
             ...config
         };
+
+        this.header_title = 'Devoirs de ';
+        this.no_data_message = 'Pas de devoirs à faire';
     }
 
     static get styles() {
         return css`
-        .pronote-card-header {
-            text-align:center;
-        }
-        div {
-            padding: 12px;
-            font-weight:bold;
-            font-size:1em;
-        }
-        .no-homework {
-            display:block;
-            padding:8px;
-            text-align: center;
-            font-style: italic;
-        }
+        ${super.styles}
         .pronote-homework-header {
             border-bottom: 2px solid grey;
         }

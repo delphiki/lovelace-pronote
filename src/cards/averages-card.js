@@ -1,24 +1,12 @@
+import BasePeriodRelatedPronoteCard from './base-period-related-card';
+
 const LitElement = Object.getPrototypeOf(
     customElements.get("ha-panel-lovelace")
 );
 const html = LitElement.prototype.html;
 const css = LitElement.prototype.css;
 
-class PronoteAveragesCard extends LitElement {
-
-    static get properties() {
-        return {
-            config: {},
-            hass: {}
-        };
-    }
-
-    getCardHeader() {
-        let child_sensor = this.config.entity.split('_averages')[0];
-        let child_attributes = this.hass.states[child_sensor].attributes;
-        let child_name = (typeof child_attributes['nickname'] === 'string' && child_attributes['nickname'].length > 0) ? child_attributes['nickname'] : child_attributes['full_name'];
-        return html`<div class="pronote-card-header">Moyennes de ${child_name}</div>`;
-    }
+class PronoteAveragesCard extends BasePeriodRelatedPronoteCard {
 
     getAverageRow(averageData) {
         let average = parseFloat(averageData.average.replace(',', '.'));
@@ -61,13 +49,13 @@ class PronoteAveragesCard extends LitElement {
         }
 
         const stateObj = this.hass.states[this.config.entity];
-        const averages = this.hass.states[this.config.entity].attributes['averages']
 
         if (stateObj) {
-
+            const averages = this.getFilteredItems();
+            const itemTemplates = [
+                this.getPeriodSwitcher()
+            ];
             const averagesRows = [];
-            const itemTemplates = [];
-
 
             for (let index = 0; index < averages.length; index++) {
                 let average = averages[index];
@@ -77,7 +65,7 @@ class PronoteAveragesCard extends LitElement {
             if (averagesRows.length > 0) {
                 itemTemplates.push(html`<table>${averagesRows}</table>`);
             } else {
-                itemTemplates.push(html`<span class="no-average">Pas de moyenne à afficher</span>`);
+                itemTemplates.push(this.noDataMessage());
             }
 
             return html`
@@ -109,24 +97,17 @@ class PronoteAveragesCard extends LitElement {
             ...defaultConfig,
             ...config
         };
+
+        this.period_sensor_key = 'averages';
+        this.items_attribute_key = 'averages';
+        this.header_title = 'Moyennes de ';
+        this.no_data_message = 'Aucune moyenne';
+        this.allow_all_periods = false;
     }
 
     static get styles() {
         return css`
-        .pronote-card-header {
-            text-align:center;
-        }
-        div {
-            padding: 12px;
-            font-weight:bold;
-            font-size:1em;
-        }
-        .no-average {
-            display:block;
-            padding:8px;
-            text-align: center;
-            font-style: italic;
-        }
+        ${super.styles}
         table {
             font-size: 0.9em;
             font-family: Roboto;
