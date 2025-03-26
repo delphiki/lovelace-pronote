@@ -13,7 +13,7 @@ class PronoteTimetableCardEditor extends BasePronoteCardEditor {
         }
 
         return html`
-            ${this.buildEntityPickerField('Timetable entity', 'entity', this._config.entity, 'timetable_(period|today|tomorrow|next_day)')}
+            ${this.buildEntityPickerField('Timetable entity', 'entity', this._config.entity, '(period_s|today_s|tomorrow_s|next_day_s)_timetable')}
             ${this.buildSwitchField('Display header', 'display_header', this._config.display_header, true)}
             ${this.buildSwitchField('Current week only', 'current_week_only', this._config.current_week_only, false)}
             ${this.buildNumberField('Max days', 'max_days', this._config.max_days, null, 1)}
