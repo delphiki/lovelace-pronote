@@ -8,6 +8,11 @@ const css = LitElement.prototype.css;
 
 class PronoteEvaluationsCard extends BasePeriodRelatedPronoteCard {
 
+    header_title = 'Evaluations de '
+    no_data_message = 'Pas d\'évaluation à afficher'
+    period_sensor_key = 'evaluations'
+    items_attribute_key = 'evaluations'
+
     getFormattedDate(date) {
         return (new Date(date))
             .toLocaleDateString('fr-FR', {weekday: 'short', day: '2-digit', month: '2-digit'})
@@ -70,11 +75,7 @@ class PronoteEvaluationsCard extends BasePeriodRelatedPronoteCard {
         `;
     }
 
-    render() {
-        if (!this.config || !this.hass) {
-            return html``;
-        }
-
+    getCardContent() {
         const stateObj = this.hass.states[this.config.entity];
 
         if (stateObj) {
@@ -106,24 +107,16 @@ class PronoteEvaluationsCard extends BasePeriodRelatedPronoteCard {
             } else {
                 itemTemplates.push(this.noDataMessage());
             }
-                
 
-            return html`
-                <ha-card id="${this.config.entity}-card">
-                    ${this.config.display_header ? this.getCardHeader() : ''}
-                    ${itemTemplates}
-                </ha-card>`
-            ;
+            return itemTemplates;
         }
+
+        return [];
     }
 
-    setConfig(config) {
-        if (!config.entity) {
-            throw new Error('You need to define an entity');
-        }
-
-        const defaultConfig = {
-            entity: null,
+    getDefaultConfig() {
+        return {
+            ...super.getDefaultConfig(),
             display_header: true,
             display_description: true,
             display_teacher: true,
@@ -133,16 +126,6 @@ class PronoteEvaluationsCard extends BasePeriodRelatedPronoteCard {
             max_evaluations: null,
             mapping_evaluations: {},
         }
-
-        this.config = {
-            ...defaultConfig,
-            ...config
-        };
-
-        this.header_title = 'Evaluations de ';
-        this.no_data_message = 'Pas d\'évaluation à afficher';
-        this.period_sensor_key = 'evaluations';
-        this.items_attribute_key = 'evaluations';
     }
 
     static get styles() {

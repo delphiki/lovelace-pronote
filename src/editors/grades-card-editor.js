@@ -25,6 +25,7 @@ class PronoteGradesCardEditor extends BasePronoteCardEditor {
             ${this.buildSwitchField('Display class max', 'display_class_max', this._config.display_class_max)}
             ${this.buildSwitchField('Display new grade notice', 'display_new_grade_notice', this._config.display_new_grade_notice)}
             ${this.buildNumberField('Max grades', 'max_grades', this._config.max_grades)}
+            ${this.buildDefaultPeriodSelectField('Default period', 'default_period', 'grades', this._config.default_period)}
         `;
     }
 }

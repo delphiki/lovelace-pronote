@@ -16,6 +16,7 @@ class PronoteAbsencesCardEditor extends BasePronoteCardEditor {
             ${this.buildEntityPickerField('Absences entity', 'entity', this._config.entity, 'absences')}
             ${this.buildSwitchField('Display header', 'display_header', this._config.display_header)}
             ${this.buildNumberField('Max absences', 'max_absences', this._config.max_absences)}
+            ${this.buildDefaultPeriodSelectField('Default period', 'default_period', 'absences', this._config.default_period)}
         `;
     }
 }

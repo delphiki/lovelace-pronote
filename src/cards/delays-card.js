@@ -8,10 +8,10 @@ const css = LitElement.prototype.css;
 
 class PronoteDelaysCard extends BasePeriodRelatedPronoteCard {
 
-    header_title = 'Retards de ';
-    no_data_message = 'Aucun retard';
-    period_sensor_key = 'delays';
-    items_attribute_key = 'delays';
+    header_title = 'Retards de '
+    no_data_message = 'Aucun retard'
+    period_sensor_key = 'delays'
+    items_attribute_key = 'delays'
 
     // Génère une ligne pour un retard donné
     getDelaysRow(delay) {

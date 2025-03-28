@@ -21,6 +21,7 @@ class PronoteEvaluationsCardEditor extends BasePronoteCardEditor {
             ${this.buildSwitchField('Display comment', 'display_comment', this._config.display_comment)}
             ${this.buildSwitchField('Display coefficient', 'display_coefficient', this._config.display_coefficient)}
             ${this.buildNumberField('Max evaluations', 'max_evaluations', this._config.max_evaluations)}
+            ${this.buildDefaultPeriodSelectField('Default period', 'default_period', 'evaluations', this._config.default_period)}
         `;
     }
 }

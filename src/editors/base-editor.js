@@ -56,17 +56,18 @@ class BasePronoteCardEditor extends LitElement {
         `
     }
 
-    buildDefaultPeriodSelectField(label, config_key, period_sensor_key, value, default_value) {
+    buildDefaultPeriodSelectField(label, config_key, period_sensor_key, value, default_value = 'current', allow_all_periods = true) {
         if (!this._config.entity) {
             return html``;
         }
         let sensor_prefix = this._config.entity.split('_'+period_sensor_key)[0];
         let active_periods = this.hass.states[`${sensor_prefix}_active_periods`].attributes['periods'];
 
-        let options = [
-            {value:'all', label: 'All'},
-            {value:'current', label: 'Current'}
-        ];
+        let options = [];
+        if (allow_all_periods) {
+            options.push({value:'all', label: 'All'});
+        }
+        options.push({value:'current', label: 'Current'});
         for (let period of active_periods) {
             options.push({value: period.id, label: period.name});
         }

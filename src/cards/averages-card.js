@@ -8,6 +8,12 @@ const css = LitElement.prototype.css;
 
 class PronoteAveragesCard extends BasePeriodRelatedPronoteCard {
 
+    period_sensor_key = 'averages'
+    items_attribute_key = 'averages'
+    header_title = 'Moyennes de '
+    no_data_message = 'Aucune moyenne'
+    allow_all_periods = false
+
     getAverageRow(averageData) {
         let average = parseFloat(averageData.average.replace(',', '.'));
 
@@ -43,11 +49,7 @@ class PronoteAveragesCard extends BasePeriodRelatedPronoteCard {
         `;
     }
 
-    render() {
-        if (!this.config || !this.hass) {
-            return html``;
-        }
-
+    getCardContent() {
         const stateObj = this.hass.states[this.config.entity];
 
         if (stateObj) {
@@ -68,22 +70,15 @@ class PronoteAveragesCard extends BasePeriodRelatedPronoteCard {
                 itemTemplates.push(this.noDataMessage());
             }
 
-            return html`
-                <ha-card id="${this.config.entity}-card">
-                    ${this.config.display_header ? this.getCardHeader() : ''}
-                    ${itemTemplates}
-                </ha-card>`
-            ;
+            return itemTemplates;
         }
+
+        return [];
     }
 
-    setConfig(config) {
-        if (!config.entity) {
-            throw new Error('You need to define an entity');
-        }
-
-        const defaultConfig = {
-            entity: null,
+    getDefaultConfig() {
+        return {
+            ...super.getDefaultConfig(),
             average_format: 'full',
             display_header: true,
             display_class_average: true,
@@ -92,17 +87,6 @@ class PronoteAveragesCard extends BasePeriodRelatedPronoteCard {
             display_class_min: true,
             display_class_max: true,
         }
-
-        this.config = {
-            ...defaultConfig,
-            ...config
-        };
-
-        this.period_sensor_key = 'averages';
-        this.items_attribute_key = 'averages';
-        this.header_title = 'Moyennes de ';
-        this.no_data_message = 'Aucune moyenne';
-        this.allow_all_periods = false;
     }
 
     static get styles() {

@@ -8,6 +8,12 @@ const html = LitElement.prototype.html;
 const css = LitElement.prototype.css;
 
 class PronoteGradesCard extends BasePeriodRelatedPronoteCard {
+
+    header_title = 'Notes de '
+    no_data_message = 'Aucune note disponible'
+    period_sensor_key = 'grades'
+    items_attribute_key = 'grades'
+
     getFormattedDate(date) {
         return (new Date(date))
             .toLocaleDateString('fr-FR', {weekday: 'short', day: '2-digit', month: '2-digit'})
@@ -93,13 +99,9 @@ class PronoteGradesCard extends BasePeriodRelatedPronoteCard {
         }
     }
 
-    setConfig(config) {
-        if (!config.entity) {
-            throw new Error('You need to define an entity');
-        }
-
-        const defaultConfig = {
-            entity: null,
+    getDefaultConfig() {
+        return {
+            ...super.getDefaultConfig(),
             grade_format: 'full',
             display_header: true,
             display_date: true,
@@ -112,17 +114,7 @@ class PronoteGradesCard extends BasePeriodRelatedPronoteCard {
             display_class_max: true,
             display_new_grade_notice: true,
             max_grades: null,
-        }
-
-        this.config = {
-            ...defaultConfig,
-            ...config
         };
-
-        this.header_title = 'Notes de ';
-        this.no_data_message = 'Aucune note disponible';
-        this.period_sensor_key = 'grades';
-        this.items_attribute_key = 'grades';
     }
 
     static get styles() {

@@ -8,6 +8,11 @@ const css = LitElement.prototype.css;
 
 class PronoteAbsencesCard extends BasePeriodRelatedPronoteCard {
 
+    period_sensor_key = 'absences'
+    items_attribute_key = 'absences'
+    header_title = 'Absences de '
+    no_data_message = 'Aucune absence'
+
     getAbsencesRow(absence) {
         let from = this.getFormattedDate(absence.from);
         let to = this.getFormattedDate(absence.to);
@@ -60,26 +65,12 @@ class PronoteAbsencesCard extends BasePeriodRelatedPronoteCard {
         }
     }
 
-    setConfig(config) {
-        if (!config.entity) {
-            throw new Error('You need to define an entity');
-        }
-
-        const defaultConfig = {
-            entity: null,
+    getDefaultConfig() {
+        return {
+            ...super.getDefaultConfig(),
             display_header: true,
             max_absences: null
-        }
-
-        this.config = {
-            ...defaultConfig,
-            ...config
         };
-
-        this.period_sensor_key = 'absences';
-        this.items_attribute_key = 'absences';
-        this.header_title = 'Absences de ';
-        this.no_data_message = 'Aucune absence';
     }
 
     static get styles() {
