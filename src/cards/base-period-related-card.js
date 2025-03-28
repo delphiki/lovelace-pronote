@@ -18,6 +18,10 @@ class BasePeriodRelatedPronoteCard extends BasePronoteCard {
             this.setPeriodFilterFromConfig(this.config.default_period);
         }
 
+        if (this.config.hide_period_switch) {
+            return html``;
+        }
+
         let available_periods = [...this.getActivePeriods()];
         if (this.allow_all_periods) {
             available_periods.push({
@@ -107,6 +111,7 @@ class BasePeriodRelatedPronoteCard extends BasePronoteCard {
     getDefaultConfig() {
         return {
             default_period: 'current',
+            hide_period_switch: false,
         }
     }
 
