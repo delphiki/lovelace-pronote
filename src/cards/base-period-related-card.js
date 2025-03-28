@@ -8,43 +8,33 @@ const css = LitElement.prototype.css;
 
 class BasePeriodRelatedPronoteCard extends BasePronoteCard {
 
-    period_filter = 'all';
+    period_filter = null;
     allow_all_periods = true;
     items_attribute_key = null;
     period_sensor_key = null;
 
     getPeriodSwitcher() {
-        let active_periods = this.getActivePeriods();
-        let tabs = [];
-        for (let period of active_periods) {
-            let is_last = period === active_periods[active_periods.length - 1];
-            
-            tabs.push(
-                html`<input
-                        type="radio"
-                        name="pronote-period-switcher" 
-                        id="pronote-period-switcher-${period.id}" 
-                        value="${period.id}" 
-                        @change=${(e) => this.handlePeriodChange(e)}
-                    />
-                    <label class="pronote-period-switcher-tab" for="pronote-period-switcher-${period.id}">${period.name}</label>`
-            );
+        if (this.period_filter === null) {
+            this.setPeriodFilterFromConfig(this.config.default_period);
         }
 
+        let available_periods = [...this.getActivePeriods()];
         if (this.allow_all_periods) {
-            tabs.push(html`<input type="radio" name="pronote-period-switcher" id="pronote-period-switcher-all" value="all" @change=${(e) => this.handlePeriodChange(e)} checked />
-                <label class="pronote-period-switcher-tab" for="pronote-period-switcher-all">Tout</label>`);
-        } else { // ugly hack to force the last period to be checked because it won't work with a condition in the for loop
-            tabs.pop();
-            let period = active_periods[active_periods.length - 1];
+            available_periods.push({
+                id: 'all',
+                name: 'Tout'
+            });
+        }
+        let tabs = [];
+        for (let period of available_periods) {
             tabs.push(
                 html`<input
                         type="radio"
                         name="pronote-period-switcher" 
                         id="pronote-period-switcher-${period.id}" 
-                        value="${period.id}" 
-                        @change=${(e) => this.handlePeriodChange(e)}
-                        checked
+                        value="${period.id}"
+                        .checked="${this.period_filter === period.id}"
+                        @change="${(e) => this.handlePeriodChange(e)}"
                     />
                     <label class="pronote-period-switcher-tab" for="pronote-period-switcher-${period.id}">${period.name}</label>`
             );
@@ -55,6 +45,24 @@ class BasePeriodRelatedPronoteCard extends BasePronoteCard {
 
     handlePeriodChange(event) {
         this.period_filter = event.target.value;
+        this.requestUpdate();
+    }
+
+    setPeriodFilterFromConfig() {
+        if (this.config.default_period && this.period_filter === null) {
+            if (this.config.default_period === 'current') {
+                let active_periods = this.getActivePeriods();
+                for (let period of active_periods) {
+                    if (period.is_current_period) {
+                        this.period_filter = period.id;
+                        break;
+                    }
+                }
+            }
+            else {
+                this.period_filter = this.config.default_period;
+            }
+        }
         this.requestUpdate();
     }
 
@@ -94,6 +102,12 @@ class BasePeriodRelatedPronoteCard extends BasePronoteCard {
             }
         }
         return items;
+    }
+
+    getDefaultConfig() {
+        return {
+            default_period: 'current',
+        }
     }
 
     static get styles() {

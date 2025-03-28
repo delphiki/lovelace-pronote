@@ -43,6 +43,18 @@ class BasePronoteCard extends LitElement {
         }
     }
 
+    // Définit la configuration de la carte
+    setConfig(config) {
+        if (!config.entity) {
+            throw new Error('You need to define an entity');
+        }
+
+        this.config = {
+            ...this.getDefaultConfig(),
+            ...config
+        };
+    }
+
     static get styles() {
         return css`
         .pronote-card-header {

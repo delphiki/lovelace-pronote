@@ -8,6 +8,11 @@ const css = LitElement.prototype.css;
 
 class PronoteDelaysCard extends BasePeriodRelatedPronoteCard {
 
+    header_title = 'Retards de ';
+    no_data_message = 'Aucun retard';
+    period_sensor_key = 'delays';
+    items_attribute_key = 'delays';
+
     // Génère une ligne pour un retard donné
     getDelaysRow(delay) {
         const date = this.getFormattedDate(delay.date);
@@ -52,13 +57,8 @@ class PronoteDelaysCard extends BasePeriodRelatedPronoteCard {
     }
 
     // Génère le rendu de la carte
-    render() {
-        if (!this.config || !this.hass) {
-            return html``;
-        }
-
+    getCardContent() {
         const stateObj = this.hass.states[this.config.entity];
-        
 
         if (stateObj) {
 
@@ -87,39 +87,16 @@ class PronoteDelaysCard extends BasePeriodRelatedPronoteCard {
                 itemTemplates.push(this.noDataMessage());
             }
 
-            // Ajoute l'en-tête de la carte si l'option est activée dans la configuration
-            const cardContent = html`
-                <ha-card id="${this.config.entity}-card">
-                    ${this.config.display_header ? this.getCardHeader() : ''}
-                    ${itemTemplates}
-                </ha-card>
-            `;
-
-            return cardContent;
+            return itemTemplates;
         }
     }
 
-    // Définit la configuration de la carte
-    setConfig(config) {
-        if (!config.entity) {
-            throw new Error('You need to define an entity');
-        }
-
-        const defaultConfig = {
-            entity: null,
+    getDefaultConfig() {
+        return {
+            ...super.getDefaultConfig(),
             display_header: true,
             max_delays: null,
         }
-
-        this.config = {
-            ...defaultConfig,
-            ...config
-        };
-
-        this.header_title = 'Retards de ';
-        this.no_data_message = 'Aucun retard';
-        this.period_sensor_key = 'delays';
-        this.items_attribute_key = 'delays';
     }
 
     static get styles() {
