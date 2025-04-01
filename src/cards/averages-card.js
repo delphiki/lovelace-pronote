@@ -14,6 +14,46 @@ class PronoteAveragesCard extends BasePeriodRelatedPronoteCard {
     no_data_message = 'Aucune moyenne'
     allow_all_periods = false
 
+    getOverallAverageRow() {
+        let sensor_prefix = this.config.entity.split('_'+this.period_sensor_key)[0];
+        let overall_average_entity = `${sensor_prefix}_overall_average`;
+
+        if (this.period_filter !== null && !this.isCurrentPeriodSelected()) {
+            overall_average_entity = `${overall_average_entity}_${this.period_filter}`;
+        }
+
+        if (!this.hass.states[overall_average_entity]) {
+            return html``;
+        }
+
+        let overall_average = this.hass.states[overall_average_entity].state;
+
+        if (!overall_average) {
+            return html``;
+        }
+
+        let average = parseFloat(overall_average.replace(',', '.'));
+        let average_classes = [];
+
+        if (this.config.compare_with_ratio !== null) {
+            let comparison_ratio = parseFloat(this.config.compare_with_ratio);
+            let average_ratio = average / parseFloat(overall_average.out_of.replace(',', '.'));
+            average_classes.push(average_ratio >= comparison_ratio ? 'above-ratio' : 'below-ratio');
+        }
+
+        return html`
+        <tr class="${average_classes.join(' ')} overall-average">
+            <td class="average-color"><span></span></td>
+            <td class="average-description">
+                <span class="average-subject">Moyenne générale</span>
+            </td>
+            <td class="average-detail">
+                <span class="average-value"><span>${overall_average.replace('.', ',')}</span></span>
+            </td>
+        </tr>
+        `;
+    }
+
     getAverageRow(averageData) {
         let average = parseFloat(averageData.average.replace(',', '.'));
 
@@ -59,6 +99,10 @@ class PronoteAveragesCard extends BasePeriodRelatedPronoteCard {
             ];
             const averagesRows = [];
 
+            if (this.config.display_overall_average) {
+                averagesRows.push(this.getOverallAverageRow(averages));
+            }
+
             for (let index = 0; index < averages.length; index++) {
                 let average = averages[index];
                 averagesRows.push(this.getAverageRow(average));
@@ -86,6 +130,7 @@ class PronoteAveragesCard extends BasePeriodRelatedPronoteCard {
             compare_with_ratio: null,
             display_class_min: true,
             display_class_max: true,
+            display_overall_average: true,
         }
     }
 
@@ -104,6 +149,21 @@ class PronoteAveragesCard extends BasePeriodRelatedPronoteCard {
             padding: 5px 10px 5px 10px;
             padding-top: 8px;
             text-align: left;
+        }
+        tr.overall-average {
+            border-bottom: 1px solid #393c3d;
+        }
+        tr.overall-average td {
+            text-transform: uppercase;
+            padding-bottom: 10px;
+        }
+        tr.overall-average .average-value span {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid var(--primary-text-color);
+        }
+        tr.overall-average tr td {
+            padding-top: 10px;
         }
         td.average-comparison-color, td.average-color {
             width: 4px;

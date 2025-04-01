@@ -108,6 +108,20 @@ class BasePeriodRelatedPronoteCard extends BasePronoteCard {
         return items;
     }
 
+    getCurrentPeriodKey() {
+        let active_periods = this.getActivePeriods();
+        for (let period of active_periods) {
+            if (period.is_current_period) {
+                return period.id;
+            }
+        }
+        return null;
+    }
+
+    isCurrentPeriodSelected() {
+        return this.period_filter === this.getCurrentPeriodKey();
+    }
+
     getDefaultConfig() {
         return {
             default_period: 'current',
