@@ -85,6 +85,9 @@ class PronoteGradesCard extends BasePeriodRelatedPronoteCard {
 
 
             for (let index = 0; index < max_grades; index++) {
+                if (index >= grades.length) {
+                    break;
+                }
                 let grade = grades[index];
                 gradesRows.push(this.getGradeRow(grade));
             }
