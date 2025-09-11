@@ -20,8 +20,8 @@ class BasePronoteCardEditor extends LitElement {
     _valueChanged(ev) {
         const _config = Object.assign({}, this._config);
 
-        if (typeof ev.target.__checked !== 'undefined') {
-            _config[ev.target.configValue] = ev.target.__checked;
+        if (typeof ev.target.checked !== 'undefined') {
+            _config[ev.target.configValue] = ev.target.checked;
         } else {
             _config[ev.target.configValue] = ev.target.value == '' ? null : ev.target.value;
         }
@@ -81,15 +81,14 @@ class BasePronoteCardEditor extends LitElement {
         }
 
         return html`
-            <ha-selector-boolean>
-                <label for="display_header">${label}</label>
+            <ha-formfield class="switch-wrapper" .label="${label}">
                 <ha-switch
                     name="${config_key}"
                     .checked=${value}
                     .configValue="${config_key}"
                     @change=${this._valueChanged}
                 ></ha-switch>
-            </ha-selector-boolean>
+            </ha-formfield>
         `;
     }
 
@@ -145,12 +144,12 @@ class BasePronoteCardEditor extends LitElement {
 
     static get styles() {
         return css`
-            ha-selector-boolean {
+            ha-formfield {
                 display: block;
                 padding-top: 20px;
                 clear: right;
             }
-            ha-selector-boolean > ha-switch {
+            ha-formfield > ha-switch {
                 float: right;
             }
             ha-select, ha-textfield {
