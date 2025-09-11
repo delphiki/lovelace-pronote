@@ -159,7 +159,6 @@ class PronoteTimetableCard extends BasePronoteCard {
             for (let index = 0; index < lessons.length; index++) {
                 let lesson = lessons[index];
                 let currentFormattedDate = this.getFormattedDate(lesson);
-                console.log(lesson.end_at);
                 let endOfDay = new Date(lesson.end_at);
 
                 if (
