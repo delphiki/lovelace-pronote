@@ -13,6 +13,12 @@ Date.prototype.getWeekNumber = function () {
     return Math.ceil((((d - new Date(d.getFullYear(), 0, 1)) / 8.64e7) + 1) / 7);
 };
 
+function isSameDay(d1, d2) {
+    return d1.getFullYear() === d2.getFullYear() &&
+           d1.getMonth() === d2.getMonth() &&
+           d1.getDate() === d2.getDate();
+}
+
 class PronoteTimetableCard extends BasePronoteCard {
 
     lunchBreakRendered = false;
@@ -147,9 +153,21 @@ class PronoteTimetableCard extends BasePronoteCard {
             let dayStartAt = null;
             let dayEndAt = null;
 
+            let now = new Date();
+            let activeDay = 0;
+
             for (let index = 0; index < lessons.length; index++) {
                 let lesson = lessons[index];
                 let currentFormattedDate = this.getFormattedDate(lesson);
+                console.log(lesson.end_at);
+                let endOfDay = new Date(lesson.end_at);
+
+                if (
+                    this.config.enable_slider && this.config.switch_to_next_day
+                    && isSameDay(endOfDay, now) && endOfDay < now
+                ) {
+                    activeDay = daysCount + 1;
+                }
 
                 if (!lesson.canceled) {
                     if (dayStartAt === null) {
@@ -176,7 +194,7 @@ class PronoteTimetableCard extends BasePronoteCard {
                 // checking if next lesson is on another day
                 if (index + 1 >= lessons.length || ((index + 1) < lessons.length && currentFormattedDate !== this.getFormattedDate(lessons[index+1]))) {
                     itemTemplates.push(html`
-                        <div class="${this.config.enable_slider ? 'slider-enabled' : ''} pronote-timetable-day-wrapper ${daysCount === 0 ? 'active' : ''}">
+                        <div class="${this.config.enable_slider ? 'slider-enabled' : ''} pronote-timetable-day-wrapper ${daysCount === activeDay ? 'active' : ''}">
                             ${this.getDayHeader(lesson, dayStartAt, dayEndAt, daysCount)}
                             <table>${dayTemplates}</table>
                         </div>
@@ -232,6 +250,7 @@ class PronoteTimetableCard extends BasePronoteCard {
             current_week_only: false,
             enable_slider: false,
             display_free_time_slots: true,
+            switch_to_next_day: false,
         }
 
         this.config = {
@@ -338,6 +357,7 @@ class PronoteTimetableCard extends BasePronoteCard {
             current_week_only: false,
             enable_slider: false,
             display_free_time_slots: true,
+            switch_to_next_day: false,
         }
     }
 
