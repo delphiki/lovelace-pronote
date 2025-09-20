@@ -18,6 +18,7 @@ class PronoteHomeworkCardEditor extends BasePronoteCardEditor {
             ${this.buildSwitchField('Current week only', 'current_week_only', this._config.current_week_only)}
             ${this.buildSwitchField('Reduce done homework', 'reduce_done_homework', this._config.reduce_done_homework)}
             ${this.buildSwitchField('Display done homework', 'display_done_homework', this._config.display_done_homework)}
+            ${this.buildSwitchField('Enable slider', 'enable_slider', this._config.enable_slider, false)}
         `;
     }
 }

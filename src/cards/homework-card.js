@@ -35,6 +35,54 @@ class PronoteHomeworkCard extends BasePronoteCard {
         </div>`;
     }
 
+    getDayHeader(homework, daysCount) {
+        return html`<div class="pronote-homework-header">
+            ${this.config.enable_slider ? html`<span
+                class="pronote-homework-header-arrow-left ${daysCount === 0 ? 'disabled' : ''}"
+                @click=${(e) => this.changeDay('previous', e)}
+            >←</span>` : '' }
+            <span class="pronote-homework-header-date">${this.getFormattedDate(homework.date)}</span>
+            ${this.config.enable_slider ? html`<span
+                class="pronote-homework-header-arrow-right"
+                @click=${(e) => this.changeDay('next', e)}
+            >→</span>` : '' }
+        </div>`;
+    }
+
+    changeDay(direction, e) {
+        e.preventDefault();
+        if (e.target.classList.contains('disabled')) {
+            return;
+        }
+
+        const activeDay = e.target.parentElement.parentElement;
+        let hasPreviousDay = activeDay.previousElementSibling && activeDay.previousElementSibling.classList.contains('pronote-homework-day-wrapper');
+        let hasNextDay = activeDay.nextElementSibling && activeDay.nextElementSibling.classList.contains('pronote-homework-day-wrapper');
+        let newActiveDay = null;
+
+        if (direction === 'previous' && hasPreviousDay) {
+            newActiveDay = activeDay.previousElementSibling;
+        } else if (direction === 'next' && hasNextDay) {
+            newActiveDay = activeDay.nextElementSibling;
+        }
+
+        if (newActiveDay) {
+            activeDay.classList.remove('active');
+            newActiveDay.classList.add('active');
+
+            hasPreviousDay = newActiveDay.previousElementSibling && newActiveDay.previousElementSibling.classList.contains('pronote-homework-day-wrapper');
+            hasNextDay = newActiveDay.nextElementSibling && newActiveDay.nextElementSibling.classList.contains('pronote-homework-day-wrapper');
+
+            if (!hasPreviousDay) {
+                newActiveDay.querySelector('.pronote-homework-header-arrow-left').classList.add('disabled');
+            }
+
+            if (!hasNextDay) {
+                newActiveDay.querySelector('.pronote-homework-header-arrow-right').classList.add('disabled');
+            }
+        }
+    }
+
     getHomeworkRow(homework, index) {
         let description = homework.description.trim().replace("\n", "<br />");
         let files = [];
@@ -64,7 +112,19 @@ class PronoteHomeworkCard extends BasePronoteCard {
         `;
     }
 
-    getCardContent() {
+    getDayRow(homework, dayTemplates, daysCount) {
+        return html`
+        <div class="${this.config.enable_slider ? 'slider-enabled' : ''} pronote-homework-day-wrapper ${daysCount === 0 ? 'active' : ''}">
+            ${this.getDayHeader(homework, daysCount)}
+            <table class="${this.config.reduce_done_homework ? 'reduce-done' : ''}">${dayTemplates}</table>
+        </div>
+        `;
+    }
+
+    render() {
+        if (!this.config || !this.hass) {
+            return html``;
+        }
 
         const stateObj = this.hass.states[this.config.entity];
         const homework = this.hass.states[this.config.entity].attributes['homework'];
@@ -73,6 +133,7 @@ class PronoteHomeworkCard extends BasePronoteCard {
             const currentWeekNumber = new Date().getWeekNumber();
             const itemTemplates = [];
             let dayTemplates = [];
+            let daysCount = 0;
 
             if (homework && homework.length > 0) {
                 let latestHomeworkDay = this.getFormattedDate(homework[0].date);
@@ -84,14 +145,16 @@ class PronoteHomeworkCard extends BasePronoteCard {
                         continue;
                     }
 
+                    // if homework for a new day
                     if (latestHomeworkDay !== currentFormattedDate) {
+                        // if previous day has lessons
                         if (dayTemplates.length > 0) {
-                            itemTemplates.push(this.getDayHeader(homework[index-1]));
-                            itemTemplates.push(html`<table class="${this.config.reduce_done_homework ? 'reduce-done' : ''}">${dayTemplates}</table>`);
+                            itemTemplates.push(this.getDayRow(homework[index-1], dayTemplates, daysCount));
                             dayTemplates = [];
                         }
 
                         latestHomeworkDay = currentFormattedDate;
+                        daysCount++;
                     }
 
                     if (this.config.current_week_only && new Date(hw.date).getWeekNumber() !== currentWeekNumber) {
@@ -101,12 +164,12 @@ class PronoteHomeworkCard extends BasePronoteCard {
                     dayTemplates.push(this.getHomeworkRow(hw, index));
                 }
 
+                // if there are homework for the day and not limit on the current week or limit and current week
                 if (dayTemplates.length > 0 && (
                     !this.config.current_week_only
                     || (this.config.current_week_only && currentWeekNumber === new Date(homework[homework.length-1].date).getWeekNumber())
                 )) {
-                    itemTemplates.push(this.getDayHeader(homework[homework.length-1]));
-                    itemTemplates.push(html`<table class="${this.config.reduce_done_homework ? 'reduce-done' : ''}">${dayTemplates}</table>`);
+                    itemTemplates.push(this.getDayRow(homework[homework.length-1], dayTemplates, daysCount));
                 }
             }
 
@@ -114,7 +177,12 @@ class PronoteHomeworkCard extends BasePronoteCard {
                 itemTemplates.push(this.noDataMessage());
             }
 
-            return itemTemplates;
+            return html`
+                <ha-card id="${this.config.entity}-card" class="${this.config.enable_slider ? 'pronote-homework-card-slider' : ''}">
+                    ${this.config.display_header ? this.getCardHeader() : ''}
+                    ${itemTemplates}
+                </ha-card>`
+            ;
         }
     }
 
@@ -129,6 +197,7 @@ class PronoteHomeworkCard extends BasePronoteCard {
             current_week_only: true,
             reduce_done_homework: true,
             display_done_homework: true,
+            enable_slider: false,
         }
 
         this.config = {
@@ -143,8 +212,32 @@ class PronoteHomeworkCard extends BasePronoteCard {
     static get styles() {
         return css`
         ${super.styles}
-        .pronote-homework-header {
+        .pronote-homework-card-slider .pronote-homework-day-wrapper {
+            display: none;
+        }
+        .pronote-homework-card-slider .pronote-homework-day-wrapper.active {
+            display: block;
+        }
+        .pronote-homework-card-slider .pronote-homework-header-date {
+            display: inline-block;
+            text-align: center;
+            width: 120px;
+        }
+        .pronote-homework-header-arrow-left,
+        .pronote-homework-header-arrow-right {
+            cursor: pointer;
+        }
+        .pronote-homework-header-arrow-left.disabled,
+        .pronote-homework-header-arrow-right.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+        div:not(.slider-enabled) > .pronote-homework-header {
             border-bottom: 2px solid grey;
+        }
+        .slider-enabled > .pronote-homework-header {
+            padding-top: 0;
+            text-align: center;
         }
         table{
             font-size: 0.9em;
@@ -212,6 +305,7 @@ class PronoteHomeworkCard extends BasePronoteCard {
             current_week_only: true,
             reduce_done_homework: true,
             display_done_homework: true,
+            enable_slider: false,
         }
     }
 
