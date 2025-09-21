@@ -161,13 +161,6 @@ class PronoteTimetableCard extends BasePronoteCard {
                 let currentFormattedDate = this.getFormattedDate(lesson);
                 let endOfDay = new Date(lesson.end_at);
 
-                if (
-                    this.config.enable_slider && this.config.switch_to_next_day
-                    && isSameDay(endOfDay, now) && endOfDay < now
-                ) {
-                    activeDay = daysCount + 1;
-                }
-
                 if (!lesson.canceled) {
                     if (dayStartAt === null) {
                         dayStartAt = lesson.start_at;
@@ -192,6 +185,13 @@ class PronoteTimetableCard extends BasePronoteCard {
 
                 // checking if next lesson is on another day
                 if (index + 1 >= lessons.length || ((index + 1) < lessons.length && currentFormattedDate !== this.getFormattedDate(lessons[index+1]))) {
+                    if (
+                        this.config.enable_slider && this.config.switch_to_next_day
+                        && isSameDay(endOfDay, now) && endOfDay < now
+                    ) {
+                        activeDay = daysCount + 1;
+                    }
+
                     itemTemplates.push(html`
                         <div class="${this.config.enable_slider ? 'slider-enabled' : ''} pronote-timetable-day-wrapper ${daysCount === activeDay ? 'active' : ''}">
                             ${this.getDayHeader(lesson, dayStartAt, dayEndAt, daysCount)}
