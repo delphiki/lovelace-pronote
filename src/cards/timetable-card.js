@@ -6,6 +6,10 @@ const LitElement = Object.getPrototypeOf(
 const html = LitElement.prototype.html;
 const css = LitElement.prototype.css;
 
+const HOUR_HEIGHT = 60;
+const START_HOUR = 8;
+const END_HOUR = 18;
+
 Date.prototype.getWeekNumber = function () {
     var d = new Date(+this);
     d.setHours(0, 0, 0, 0);
@@ -19,9 +23,18 @@ function isSameDay(d1, d2) {
            d1.getDate() === d2.getDate();
 }
 
+function getDecimalHour(dateStr) {
+    const d = new Date(dateStr);
+    return d.getHours() + d.getMinutes() / 60;
+}
+
 class PronoteTimetableCard extends BasePronoteCard {
 
     lunchBreakRendered = false;
+
+    // =====================
+    // List mode methods
+    // =====================
 
     getBreakRow(label, ended) {
         return html`
@@ -70,6 +83,120 @@ class PronoteTimetableCard extends BasePronoteCard {
         return html`${prefix}${content}`;
     }
 
+    // =====================
+    // Timeline mode methods
+    // =====================
+
+    getTimelineScale() {
+        const markers = [];
+        for (let h = START_HOUR; h <= END_HOUR; h++) {
+            const top = (h - START_HOUR) * HOUR_HEIGHT;
+            markers.push(html`
+                <div class="timeline-hour-row" style="top: ${top}px">
+                    <span class="timeline-hour-label">${h}h</span>
+                    <span class="timeline-hour-line"></span>
+                </div>
+            `);
+        }
+        return markers;
+    }
+
+    getLessonBlock(lesson) {
+        const currentDate = new Date();
+        const startAt = Date.parse(lesson.start_at);
+        const endAt = Date.parse(lesson.end_at);
+
+        const startHour = getDecimalHour(lesson.start_at);
+        const endHour = getDecimalHour(lesson.end_at);
+        const top = (startHour - START_HOUR) * HOUR_HEIGHT;
+        const height = (endHour - startHour) * HOUR_HEIGHT;
+
+        return html`
+        <div class="timeline-lesson ${lesson.canceled ? 'lesson-canceled' : ''} ${this.config.dim_ended_lessons && endAt < currentDate ? 'lesson-ended' : ''}"
+             style="top: ${top}px; height: ${height}px">
+            <span class="timeline-lesson-color" style="background-color:${lesson.background_color}"></span>
+            <div class="timeline-lesson-content">
+                <span class="lesson-name">${lesson.lesson}</span>
+                ${this.config.display_classroom ? html`<span class="lesson-classroom">
+                    ${lesson.classroom ? 'Salle ' + lesson.classroom : ''}
+                    ${lesson.classroom && this.config.display_teacher ? ', ' : ''}
+                </span>` : ''}
+                ${this.config.display_teacher ? html`<span class="lesson-teacher">
+                    ${lesson.teacher_name}
+                </span>` : ''}
+            </div>
+            <div class="timeline-lesson-right">
+                <span class="lesson-times">${lesson.start_time} - ${lesson.end_time}</span>
+                ${lesson.status ? html`<span class="lesson-status">${lesson.status}</span>` : ''}
+            </div>
+        </div>
+        `;
+    }
+
+    getLunchBreakBlock(dayLessons) {
+        if (!this.config.display_lunch_break) return html``;
+
+        let lastMorningEnd = null;
+        let firstAfternoonStart = null;
+
+        for (const lesson of dayLessons) {
+            if (lesson.canceled) continue;
+            if (lesson.is_morning) {
+                const end = getDecimalHour(lesson.end_at);
+                if (lastMorningEnd === null || end > lastMorningEnd) {
+                    lastMorningEnd = end;
+                }
+            }
+            if (lesson.is_afternoon && firstAfternoonStart === null) {
+                firstAfternoonStart = getDecimalHour(lesson.start_at);
+            }
+        }
+
+        if (lastMorningEnd === null || firstAfternoonStart === null || firstAfternoonStart <= lastMorningEnd) {
+            return html``;
+        }
+
+        const top = (lastMorningEnd - START_HOUR) * HOUR_HEIGHT;
+        const height = (firstAfternoonStart - lastMorningEnd) * HOUR_HEIGHT;
+
+        const now = new Date();
+        const firstAfternoonLesson = dayLessons.find(l => l.is_afternoon && !l.canceled);
+        const ended = this.config.dim_ended_lessons && firstAfternoonLesson && Date.parse(firstAfternoonLesson.start_at) < now;
+
+        return html`
+        <div class="timeline-break ${ended ? 'lesson-ended' : ''}"
+             style="top: ${top}px; height: ${height}px">
+            <span class="lesson-name">Repas</span>
+        </div>
+        `;
+    }
+
+    getDayTimeline(dayLessons) {
+        const totalHeight = (END_HOUR - START_HOUR) * HOUR_HEIGHT;
+        const nonCanceled = dayLessons.filter(l => !l.canceled);
+        const filtered = dayLessons.filter(lesson => {
+            if (!lesson.canceled) return true;
+            const start = Date.parse(lesson.start_at);
+            const end = Date.parse(lesson.end_at);
+            return !nonCanceled.some(other => Date.parse(other.start_at) < end && Date.parse(other.end_at) > start);
+        });
+        const lessonBlocks = filtered.map(lesson => this.getLessonBlock(lesson));
+
+        return html`
+        <div class="timetable-timeline" style="height: ${totalHeight}px">
+            ${this.getTimelineScale()}
+            <div class="timeline-lessons">
+                ${lessonBlocks}
+                ${this.getLunchBreakBlock(dayLessons)}
+            </div>
+        </div>
+        `;
+    }
+
+    // =====================
+    // Shared methods
+    // =====================
+
     getFormattedDate(lesson) {
         return (new Date(lesson.start_at))
             .toLocaleDateString('fr-FR', {weekday: 'long', day: '2-digit', month: '2-digit'})
@@ -86,7 +213,7 @@ class PronoteTimetableCard extends BasePronoteCard {
             ${this.config.enable_slider ? html`<span
                 class="pronote-timetable-header-arrow-left ${daysCount === 0 ? 'disabled' : ''}"
                 @click=${(e) => this.changeDay('previous', e)}
-            >←</span>` : '' }
+            >&#8592;</span>` : '' }
             <span class="pronote-timetable-header-date">${this.getFormattedDate(firstLesson)}</span>
             ${this.config.display_day_hours && dayStartAt && dayEndAt ? html`<span class="pronote-timetable-header-hours">
                 ${this.getFormattedTime(dayStartAt)} - ${this.getFormattedTime(dayEndAt)}
@@ -94,7 +221,7 @@ class PronoteTimetableCard extends BasePronoteCard {
             ${this.config.enable_slider ? html`<span
                 class="pronote-timetable-header-arrow-right"
                 @click=${(e) => this.changeDay('next', e)}
-            >→</span>` : '' }
+            >&#8594;</span>` : '' }
         </div>`;
     }
 
@@ -142,12 +269,15 @@ class PronoteTimetableCard extends BasePronoteCard {
 
         const lessons = this.hass.states[this.config.entity].attributes['lessons']
 
+        const isTimeline = this.config.display_as_timeline;
+
         if (stateObj) {
             this.lunchBreakRendered = false;
             const currentWeekNumber = new Date().getWeekNumber();
 
             const itemTemplates = [];
             let dayTemplates = [];
+            let dayLessons = [];
             let daysCount = 0;
 
             let dayStartAt = null;
@@ -181,7 +311,11 @@ class PronoteTimetableCard extends BasePronoteCard {
                     }
                 }
 
-                dayTemplates.push(this.getTimetableRow(lesson));
+                if (isTimeline) {
+                    dayLessons.push(lesson);
+                } else {
+                    dayTemplates.push(this.getTimetableRow(lesson));
+                }
 
                 // checking if next lesson is on another day
                 if (index + 1 >= lessons.length || ((index + 1) < lessons.length && currentFormattedDate !== this.getFormattedDate(lessons[index+1]))) {
@@ -192,13 +326,18 @@ class PronoteTimetableCard extends BasePronoteCard {
                         activeDay = daysCount + 1;
                     }
 
+                    const dayContent = isTimeline
+                        ? this.getDayTimeline(dayLessons)
+                        : html`<table>${dayTemplates}</table>`;
+
                     itemTemplates.push(html`
                         <div class="${this.config.enable_slider ? 'slider-enabled' : ''} pronote-timetable-day-wrapper ${daysCount === activeDay ? 'active' : ''}">
                             ${this.getDayHeader(lesson, dayStartAt, dayEndAt, daysCount)}
-                            <table>${dayTemplates}</table>
+                            ${dayContent}
                         </div>
                     `);
                     dayTemplates = [];
+                    dayLessons = [];
 
                     this.lunchBreakRendered = false;
                     dayStartAt = null;
@@ -208,7 +347,7 @@ class PronoteTimetableCard extends BasePronoteCard {
                     if (this.config.max_days && this.config.max_days <= daysCount) {
                         break;
                     }
-                } else if (this.config.display_free_time_slots && index + 1 < lessons.length) {
+                } else if (!isTimeline && this.config.display_free_time_slots && index + 1 < lessons.length) {
                     const currentEndAt = new Date(lesson.end_at);
                     const nextLesson = lessons[index+1];
                     const nextLessonStartAt = new Date(nextLesson.start_at);
@@ -221,6 +360,13 @@ class PronoteTimetableCard extends BasePronoteCard {
 
             if (dayTemplates.length > 0) {
                 itemTemplates.push(html`<table>${dayTemplates}</table>`);
+            }
+            if (dayLessons.length > 0) {
+                itemTemplates.push(html`
+                    <div class="pronote-timetable-day-wrapper">
+                        ${this.getDayTimeline(dayLessons)}
+                    </div>
+                `);
             }
 
             return html`
@@ -250,6 +396,7 @@ class PronoteTimetableCard extends BasePronoteCard {
             enable_slider: false,
             display_free_time_slots: true,
             switch_to_next_day: false,
+            display_as_timeline: false,
         }
 
         this.config = {
@@ -264,6 +411,8 @@ class PronoteTimetableCard extends BasePronoteCard {
     static get styles() {
         return css`
         ${super.styles}
+
+        /* Slider */
         .pronote-timetable-card-slider .pronote-timetable-day-wrapper {
             display: none;
         }
@@ -287,6 +436,15 @@ class PronoteTimetableCard extends BasePronoteCard {
         span.pronote-timetable-header-hours {
             float:right;
         }
+
+        /* Day separator */
+        div:not(.slider-enabled).pronote-timetable-day-wrapper + div:not(.slider-enabled).pronote-timetable-day-wrapper {
+            border-top: 1px solid white;
+        }
+
+        /* ===================== */
+        /* List mode styles      */
+        /* ===================== */
         table{
             clear:both;
             font-size: 0.9em;
@@ -307,10 +465,6 @@ class PronoteTimetableCard extends BasePronoteCard {
             width: 13%;
             text-align:right;
         }
-        span.lesson-name {
-            font-weight:bold;
-            display:block;
-        }
         tr td:nth-child(2) {
             width: 4px;
             padding: 5px 0;
@@ -322,6 +476,111 @@ class PronoteTimetableCard extends BasePronoteCard {
             border-radius:4px;
             background-color: grey;
             margin-top:4px;
+        }
+
+        /* ===================== */
+        /* Timeline mode styles  */
+        /* ===================== */
+        .timetable-timeline {
+            position: relative;
+            margin-left: 40px;
+            margin-right: 8px;
+            margin-bottom: 12px;
+            font-size: 0.9em;
+            font-family: Roboto;
+        }
+        .timeline-hour-row {
+            position: absolute;
+            width: calc(100% + 40px);
+            left: -40px;
+            height: 0;
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+        }
+        .timeline-hour-label {
+            width: 32px;
+            text-align: right;
+            font-size: 0.75em;
+            color: var(--secondary-text-color, #888);
+            flex-shrink: 0;
+        }
+        .timeline-hour-line {
+            flex: 1;
+            border-top: 1px solid var(--divider-color, rgba(0,0,0,0.12));
+            margin-left: 8px;
+        }
+        .timeline-lessons {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .timeline-lesson {
+            position: absolute;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: flex-start;
+            border-radius: 6px;
+            background-color: var(--card-background-color, rgba(0,0,0,0.05));
+            border: 1px solid var(--divider-color, rgba(0,0,0,0.1));
+            overflow: hidden;
+            padding: 2px 8px;
+            box-sizing: border-box;
+            z-index: 1;
+        }
+        .timeline-lesson-color {
+            width: 4px;
+            min-height: 100%;
+            border-radius: 4px;
+            flex-shrink: 0;
+            margin-right: 8px;
+            align-self: stretch;
+        }
+        .timeline-lesson-content {
+            flex: 1;
+            min-width: 0;
+            padding: 4px;
+        }
+        .timeline-lesson-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: space-between;
+            align-self: stretch;
+            margin-left: auto;
+            flex-shrink: 0;
+            padding: 2px 0;
+        }
+        span.lesson-times {
+            font-size: 0.75em;
+            color: var(--secondary-text-color, #888);
+        }
+        .timeline-break {
+            position: absolute;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            box-sizing: border-box;
+            z-index: 1;
+            color: var(--secondary-text-color, #888);
+            font-style: italic;
+        }
+
+        /* ===================== */
+        /* Shared styles         */
+        /* ===================== */
+        span.lesson-name {
+            font-weight:bold;
+            display:block;
+        }
+        span.lesson-classroom,
+        span.lesson-teacher {
+            font-size: 0.9em;
+            color: var(--secondary-text-color, #888);
         }
         span.lesson-status {
             color: white;
@@ -337,9 +596,6 @@ class PronoteTimetableCard extends BasePronoteCard {
         }
         .lesson-ended {
             opacity: 0.3;
-        }
-        div:not(.slider-enabled).pronote-timetable-day-wrapper + div:not(.slider-enabled).pronote-timetable-day-wrapper {
-            border-top: 1px solid white;
         }
         `;
     }
@@ -357,6 +613,7 @@ class PronoteTimetableCard extends BasePronoteCard {
             enable_slider: false,
             display_free_time_slots: true,
             switch_to_next_day: false,
+            display_as_timeline: false,
         }
     }
 
