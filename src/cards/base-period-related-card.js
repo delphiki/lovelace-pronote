@@ -67,7 +67,6 @@ class BasePeriodRelatedPronoteCard extends BasePronoteCard {
                 this.period_filter = this.config.default_period;
             }
         }
-        this.requestUpdate();
     }
 
     getActivePeriodsSensor() {
@@ -93,6 +92,9 @@ class BasePeriodRelatedPronoteCard extends BasePronoteCard {
     }
 
     getFilteredItems() {
+        if (this.period_filter === null) {
+            this.setPeriodFilterFromConfig(this.config.default_period);
+        }
         if (this.period_filter === 'all' && !this.allow_all_periods) {
             this.period_filter = this.getActivePeriods()[this.getActivePeriods().length - 1].id;
         }
