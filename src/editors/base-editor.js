@@ -61,7 +61,7 @@ class BasePronoteCardEditor extends LitElement {
             return html``;
         }
         let sensor_prefix = this._config.entity.split('_'+period_sensor_key)[0];
-        let active_periods = this.hass.states[`${sensor_prefix}_active_periods`].attributes['periods'];
+        let active_periods = this.hass.states[`${sensor_prefix}_active_periods`]?.attributes['periods'] ?? [];
 
         let options = [];
         if (allow_all_periods) {

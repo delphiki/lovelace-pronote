@@ -75,7 +75,7 @@ class BasePeriodRelatedPronoteCard extends BasePronoteCard {
     }
 
     getActivePeriods() {
-        return this.getActivePeriodsSensor().attributes['periods'];
+        return this.getActivePeriodsSensor()?.attributes['periods'] ?? [];
     }
 
     getAllEntityNames() {
@@ -95,16 +95,20 @@ class BasePeriodRelatedPronoteCard extends BasePronoteCard {
         if (this.period_filter === null) {
             this.setPeriodFilterFromConfig(this.config.default_period);
         }
-        if (this.period_filter === 'all' && !this.allow_all_periods) {
-            this.period_filter = this.getActivePeriods()[this.getActivePeriods().length - 1].id;
+        let active_periods = this.getActivePeriods();
+        if (this.period_filter === 'all' && !this.allow_all_periods && active_periods.length > 0) {
+            this.period_filter = active_periods[active_periods.length - 1].id;
         }
 
         let entity_names = this.getAllEntityNames();
         let items = [];
         for (let entity_name of entity_names) {
             let entity_state = this.hass.states[entity_name];
+            if (!entity_state) {
+                continue;
+            }
             if (this.period_filter === 'all' || this.period_filter === entity_state.attributes['period_key']) {
-                items.push(...entity_state.attributes[this.items_attribute_key]);
+                items.push(...(entity_state.attributes[this.items_attribute_key] ?? []));
             }
         }
         return items;
