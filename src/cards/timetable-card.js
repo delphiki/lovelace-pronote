@@ -140,9 +140,8 @@ class PronoteTimetableCard extends BasePronoteCard {
 
         const stateObj = this.hass.states[this.config.entity];
 
-        const lessons = this.hass.states[this.config.entity].attributes['lessons']
-
         if (stateObj) {
+            const lessons = stateObj.attributes['lessons'] ?? [];
             this.lunchBreakRendered = false;
             const currentWeekNumber = new Date().getWeekNumber();
 
