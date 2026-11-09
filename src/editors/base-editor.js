@@ -18,14 +18,12 @@ class BasePronoteCardEditor extends LitElement {
     }
 
     _valueChanged(ev) {
-        const _config = Object.assign({}, this._config);
+        this._setConfigValue(ev.target.configValue, ev.target.value);
+    }
 
-        if (typeof ev.target.checked !== 'undefined') {
-            _config[ev.target.configValue] = ev.target.checked;
-        } else {
-            _config[ev.target.configValue] = ev.target.value == '' ? null : ev.target.value;
-        }
-        
+    _setConfigValue(config_key, value) {
+        const _config = Object.assign({}, this._config);
+        _config[config_key] = value === '' || value === undefined ? null : value;
         this._config = _config;
 
         const event = new CustomEvent("config-changed", {
@@ -36,24 +34,22 @@ class BasePronoteCardEditor extends LitElement {
         this.dispatchEvent(event);
     }
 
-    buildSelectField(label, config_key, options, value, default_value) {
-        let selectOptions = [];
-        for (let i = 0; i < options.length; i++) {
-            let currentOption = options[i];
-            selectOptions.push(html`<ha-list-item .value="${currentOption.value}">${currentOption.label}</ha-list-item>`);
-        }
-
+    buildFormField(label, config_key, value, selector) {
         return html`
-            <ha-select
-                label="${label}"
-                .value=${value || default_value}
-                .configValue=${config_key}                
-                @change=${this._valueChanged}
-                @closed=${(ev) => ev.stopPropagation()}
-            >
-                ${selectOptions}
-            </ha-select>
-        `
+            <ha-form
+                .hass=${this.hass}
+                .data=${{ [config_key]: value }}
+                .schema=${[{ name: config_key, selector: selector }]}
+                .computeLabel=${() => label}
+                @value-changed=${(ev) => this._setConfigValue(config_key, ev.detail.value[config_key])}
+            ></ha-form>
+        `;
+    }
+
+    buildSelectField(label, config_key, options, value, default_value) {
+        return this.buildFormField(label, config_key, value || default_value, {
+            select: { mode: 'dropdown', options: options },
+        });
     }
 
     buildDefaultPeriodSelectField(label, config_key, period_sensor_key, value, default_value = 'current', allow_all_periods = true) {
@@ -80,39 +76,17 @@ class BasePronoteCardEditor extends LitElement {
             value = default_value;
         }
 
-        return html`
-            <ha-formfield class="switch-wrapper" .label="${label}">
-                <ha-switch
-                    name="${config_key}"
-                    .checked=${value}
-                    .configValue="${config_key}"
-                    @change=${this._valueChanged}
-                ></ha-switch>
-            </ha-formfield>
-        `;
+        return this.buildFormField(label, config_key, value, { boolean: {} });
     }
 
     buildNumberField(label, config_key, value, default_value, step) {
-        return html`
-            <ha-textfield type="number" step="${step || 1}"
-                 label="${label}"
-                .value=${value || default_value}
-                .configValue=${config_key}                
-                @change=${this._valueChanged}
-            >
-        `;
+        return this.buildFormField(label, config_key, value || default_value, {
+            number: { mode: 'box', step: step || 1 },
+        });
     }
 
     buildTextField(label, config_key, value, default_value) {
-        return html`
-            <ha-textfield
-                 label="${label}"
-                .value=${value || default_value}
-                .configValue=${config_key}                
-                @change=${this._valueChanged}
-                @keyup=${this._valueChanged}
-            >
-        `;
+        return this.buildFormField(label, config_key, value || default_value, { text: {} });
     }
 
     buildEntityPickerField(label, config_key, value, filter) {
@@ -124,7 +98,7 @@ class BasePronoteCardEditor extends LitElement {
                 .hass=${this.hass}
                 .value=${value || ''}
                 .configValue=${config_key}
-                .includeDomains="sensor"
+                .includeDomains=${['sensor']}
                 .entityFilter="${(entity) => entityFilter.test(entity.entity_id)}"
                 @value-changed=${this._valueChanged}
                 allow-custom-entity
@@ -133,7 +107,7 @@ class BasePronoteCardEditor extends LitElement {
     }
 
     async loadEntityPicker() {
-        if (window.customElements.get("ha-entity-picker")) {
+        if (window.customElements.get("ha-entity-picker") && window.customElements.get("ha-form")) {
             return;
         }
 
@@ -144,17 +118,8 @@ class BasePronoteCardEditor extends LitElement {
 
     static get styles() {
         return css`
-            ha-formfield {
+            ha-form {
                 display: block;
-                padding-top: 20px;
-                clear: right;
-            }
-            ha-formfield > ha-switch {
-                float: right;
-            }
-            ha-select, ha-textfield {
-                clear: right;
-                width: 100%;
                 padding-top: 15px;
             }
         `;
