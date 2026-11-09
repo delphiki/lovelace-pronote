@@ -37,7 +37,8 @@ class PronoteAveragesCard extends BasePeriodRelatedPronoteCard {
 
         if (this.config.compare_with_ratio !== null) {
             let comparison_ratio = parseFloat(this.config.compare_with_ratio);
-            let average_ratio = average / parseFloat(overall_average.out_of.replace(',', '.'));
+            let out_of = this.hass.states[overall_average_entity].attributes['out_of'] ?? '20';
+            let average_ratio = average / parseFloat(String(out_of).replace(',', '.'));
             average_classes.push(average_ratio >= comparison_ratio ? 'above-ratio' : 'below-ratio');
         }
 
