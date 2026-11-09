@@ -22,6 +22,33 @@ function isSameDay(d1, d2) {
 class PronoteTimetableCard extends BasePronoteCard {
 
     lunchBreakRendered = false;
+    lunchBreakEnds = {};
+
+    // lunch slot is the default slot of 30 min or more that overlaps 11:00-14:00 the most
+    getLunchBreakEnds(lessons) {
+        const ends = {};
+        const overlaps = {};
+        let previous = null;
+        for (const lesson of lessons) {
+            if (lesson.canceled) {
+                continue;
+            }
+            const day = this.getFormattedDate(lesson);
+            if (previous && this.getFormattedDate(previous) === day) {
+                const gapStart = new Date(previous.end_at);
+                const gapEnd = new Date(lesson.start_at);
+                const windowStart = new Date(gapStart).setHours(11, 0, 0, 0);
+                const windowEnd = new Date(gapStart).setHours(14, 0, 0, 0);
+                const overlap = Math.min(gapEnd, windowEnd) - Math.max(gapStart, windowStart);
+                if (gapEnd - gapStart >= 30 * 60 * 1000 && overlap > (overlaps[day] || 0)) {
+                    ends[day] = lesson.start_at;
+                    overlaps[day] = overlap;
+                }
+            }
+            previous = lesson;
+        }
+        return ends;
+    }
 
     getBreakRow(label, ended) {
         return html`
@@ -39,8 +66,14 @@ class PronoteTimetableCard extends BasePronoteCard {
         let startAt = Date.parse(lesson.start_at);
         let endAt = Date.parse(lesson.end_at);
 
+        // no free slot => fallback on the lunch break time option
+        const lunchBreakEnd = this.lunchBreakEnds[this.getFormattedDate(lesson)];
+        const afterLunchBreak = lunchBreakEnd
+            ? lesson.start_at === lunchBreakEnd && !lesson.canceled
+            : lesson.is_afternoon;
+
         let prefix = html``;
-        if (this.config.display_lunch_break && lesson.is_afternoon && !this.lunchBreakRendered) {
+        if (this.config.display_lunch_break && afterLunchBreak && !this.lunchBreakRendered) {
             prefix = this.getBreakRow('Repas', this.config.dim_ended_lessons && startAt < currentDate);
             this.lunchBreakRendered = true;
         }
@@ -144,6 +177,7 @@ class PronoteTimetableCard extends BasePronoteCard {
 
         if (stateObj) {
             this.lunchBreakRendered = false;
+            this.lunchBreakEnds = this.config.display_lunch_break ? this.getLunchBreakEnds(lessons) : {};
             const currentWeekNumber = new Date().getWeekNumber();
 
             const itemTemplates = [];
@@ -212,7 +246,10 @@ class PronoteTimetableCard extends BasePronoteCard {
                     const currentEndAt = new Date(lesson.end_at);
                     const nextLesson = lessons[index+1];
                     const nextLessonStartAt = new Date(nextLesson.start_at);
-                    if (lesson.is_morning === nextLesson.is_morning && Math.floor((nextLessonStartAt-currentEndAt) / 1000 / 60) > 30) {
+                    const lunchBreakEnd = this.lunchBreakEnds[currentFormattedDate];
+                    const isLunchBreak = nextLesson.start_at === lunchBreakEnd;
+                    const sameHalfDay = lunchBreakEnd || lesson.is_morning === nextLesson.is_morning;
+                    if (sameHalfDay && !isLunchBreak && Math.floor((nextLessonStartAt-currentEndAt) / 1000 / 60) > 30) {
                         const now = new Date();
                         dayTemplates.push(this.getBreakRow('Pas de cours', this.config.dim_ended_lessons && nextLessonStartAt < now));
                     }
