@@ -177,7 +177,7 @@ class PronoteTimetableCard extends BasePronoteCard {
 
         if (stateObj) {
             this.lunchBreakRendered = false;
-            this.lunchBreakEnds = this.getLunchBreakEnds(lessons);
+            this.lunchBreakEnds = this.config.display_lunch_break ? this.getLunchBreakEnds(lessons) : {};
             const currentWeekNumber = new Date().getWeekNumber();
 
             const itemTemplates = [];
@@ -247,7 +247,7 @@ class PronoteTimetableCard extends BasePronoteCard {
                     const nextLesson = lessons[index+1];
                     const nextLessonStartAt = new Date(nextLesson.start_at);
                     const lunchBreakEnd = this.lunchBreakEnds[currentFormattedDate];
-                    const isLunchBreak = this.config.display_lunch_break && nextLesson.start_at === lunchBreakEnd;
+                    const isLunchBreak = nextLesson.start_at === lunchBreakEnd;
                     const sameHalfDay = lunchBreakEnd || lesson.is_morning === nextLesson.is_morning;
                     if (sameHalfDay && !isLunchBreak && Math.floor((nextLessonStartAt-currentEndAt) / 1000 / 60) > 30) {
                         const now = new Date();
