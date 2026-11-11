@@ -176,7 +176,7 @@ class PronoteTimetableCard extends BasePronoteCard {
                 }
 
                 if (this.config.current_week_only) {
-                    if (new Date(lesson.start_at).getWeekNumber() > currentWeekNumber) {
+                    if (new Date(lesson.start_at).getWeekNumber() > currentWeekNumber && activeDay < daysCount) {
                         break;
                     }
                 }
@@ -187,7 +187,7 @@ class PronoteTimetableCard extends BasePronoteCard {
                 if (index + 1 >= lessons.length || ((index + 1) < lessons.length && currentFormattedDate !== this.getFormattedDate(lessons[index+1]))) {
                     if (
                         this.config.enable_slider && this.config.switch_to_next_day
-                        && isSameDay(endOfDay, now) && endOfDay < now
+                        && isSameDay(endOfDay, now) && endOfDay < now && index + 1 < lessons.length
                     ) {
                         activeDay = daysCount + 1;
                     }
@@ -205,7 +205,7 @@ class PronoteTimetableCard extends BasePronoteCard {
                     dayEndAt = null;
 
                     daysCount++;
-                    if (this.config.max_days && this.config.max_days <= daysCount) {
+                    if (this.config.max_days && this.config.max_days <= daysCount - activeDay) {
                         break;
                     }
                 } else if (this.config.display_free_time_slots && index + 1 < lessons.length) {
